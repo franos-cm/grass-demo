@@ -24,8 +24,10 @@ void vertex() {
 	float rnd = rand(VERTEX.xz * rnd_multiplier);
 	if (rnd > 1.0 - density) {
 		float h = blade_height * (0.5 + rand(vec2(VERTEX.z, VERTEX.x)) * 0.5);
+		float sway = sin(TIME + VERTEX.x * 2.0 + rnd * 10.0) * wind_strength;
+
 		VERTEX.y += h;
-		VERTEX.x += sin(rnd * rnd_multiplier) * blade_width;
+		VERTEX.x += sin(rnd * rnd_multiplier) * blade_width + sway;
 		VERTEX.z += sin(rnd * rnd_multiplier) * blade_width;
 
 		height_ratio = clamp(VERTEX.y / (blade_height * 2.0), 0.2, 1.0);
