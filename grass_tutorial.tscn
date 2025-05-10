@@ -10,7 +10,6 @@ subdivide_depth = 200
 
 [sub_resource type="QuadMesh" id="QuadMesh_an6go"]
 material = ExtResource("2_k5kfe")
-size = Vector2(0.5, 1)
 subdivide_depth = 8
 center_offset = Vector3(0, 0.5, 0)
 

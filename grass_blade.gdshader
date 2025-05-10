@@ -3,26 +3,24 @@ render_mode unshaded, cull_disabled;
 
 uniform vec3 base_color: source_color = vec3(0.0f);
 
-uniform vec2 p_middle = vec2(0.5, 0.0);
-uniform float middle_width = 1.5;
-uniform float base_width = 1.0;
+const vec2 p0 = vec2(0.0, 0.0); // start point, always on origin
+uniform vec2 p1 = vec2(1.0, 1.0);
+const vec2 p2 = vec2(1.0, 0.0); // end point, always on top. We can move it using rotation tranformation.
+
+uniform float base_width: hint_range(0.0, 1.0) = 1.0;
+uniform float middle_width: hint_range(0.0, 1.0) = 1.0;
 
 void vertex() {
-	vec3 pm = vec3(middle_width, p_middle.x, p_middle.y);
-	vec3 p1 = mix(vec3(base_width, 0.0, 0.0), pm, VERTEX.y);
-	vec3 p2 = mix(pm, vec3(0.0, 1.0, 0.0), VERTEX.y);
-	vec3 p = mix(p1, p2, VERTEX.y);
+	float t = VERTEX.y; // goes from 0 to 1, param to bezier curve
+	vec2 p01 = mix(p0, p1, t);
+	vec2 p12 = mix(p1, vec2(1.0, 0.0), t);
+	vec2 p = mix(p01, p12, t);
 
-	VERTEX.x *= p.x;
-	VERTEX.y = p.y;
-	VERTEX.z = p.z;
+	VERTEX.x *= (1.0 - t) * middle_width * (t + base_width);
+	VERTEX.y = p.x;
+	VERTEX.z = p.y;
 }
 
 void fragment() {
 	ALBEDO = base_color;
 }
-
-//void light() {
-//	// Called for every pixel for every light affecting the material.
-//	// Uncomment to replace the default light processing function with this one.
-//}
