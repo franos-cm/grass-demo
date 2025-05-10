@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode unshaded, cull_back;
+render_mode unshaded, cull_disabled;
 
 uniform vec3 base_color: source_color = vec3(0.0f);
 
@@ -12,7 +12,7 @@ void vertex() {
 	vec3 p1 = mix(vec3(base_width, 0.0, 0.0), pm, VERTEX.y);
 	vec3 p2 = mix(pm, vec3(0.0, 1.0, 0.0), VERTEX.y);
 	vec3 p = mix(p1, p2, VERTEX.y);
-	
+
 	VERTEX.x *= p.x;
 	VERTEX.y = p.y;
 	VERTEX.z = p.z;
