@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://iu18owocgspm"]
+
+[ext_resource type="Shader" uid="uid://haes55l31luo" path="res://grass_blade.gdshader" id="1_hbjdc"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_hbjdc")
+shader_parameter/base_color = Color(0.388235, 0.682353, 0.27451, 1)
+shader_parameter/p_middle = Vector2(0.79, 0.5)
+shader_parameter/middle_width = 0.27
+shader_parameter/base_width = 0.3
