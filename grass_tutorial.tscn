@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://d082xnvvbei7j"]
+
+[ext_resource type="Material" uid="uid://s6etm6cydsya" path="res://grass_shader.tres" id="1_mydnd"]
+[ext_resource type="Material" uid="uid://iu18owocgspm" path="res://grass_blade.tres" id="2_k5kfe"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_4xowi"]
+material = ExtResource("1_mydnd")
+subdivide_width = 200
+subdivide_depth = 200
+
+[sub_resource type="QuadMesh" id="QuadMesh_an6go"]
+material = ExtResource("2_k5kfe")
+subdivide_depth = 8
+center_offset = Vector3(0, 0.5, 0)
+
+[node name="Node3D" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.16098, 0, 0)
+mesh = SubResource("PlaneMesh_4xowi")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("QuadMesh_an6go")
