@@ -1,6 +1,7 @@
 shader_type spatial;
 render_mode cull_disabled;
 
+
 // Base geometrical params
 group_uniforms Shape;
 uniform vec2 control_p = vec2(0.45, 0.6);  // Bezier control point
@@ -10,11 +11,12 @@ group_uniforms;
 
 // Lighting/aesthetical params
 group_uniforms Lighting;
-uniform vec3 base_color: source_color = vec3(99.0, 174.0, 70.0);
+uniform vec3 base_color: source_color = vec3(0.388235, 0.682353, 0.27451);
 uniform float ridge_smoothness: hint_range(0.0, 0.3) = 0.03;
 uniform float rim_thickness: hint_range(0.3, 0.5) = 0.49;
 uniform float rim_smoothness: hint_range(0.0, 0.3) = 0.1;
 group_uniforms;
+
 
 // Constants
 const vec2 p0 = vec2(0.0, 0.0); // start point, always on origin
