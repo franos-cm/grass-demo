@@ -1,1 +1,0 @@
-extends MultiMeshInstance3D

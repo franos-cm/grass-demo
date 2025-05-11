@@ -5,7 +5,10 @@
 [resource]
 render_priority = 0
 shader = ExtResource("1_hbjdc")
-shader_parameter/p1 = Vector2(0.45, 0.6)
+shader_parameter/control_p = Vector2(0.45, 0.6)
 shader_parameter/base_width = 0.128
 shader_parameter/middle_width = 0.366
 shader_parameter/base_color = Color(0.388235, 0.682353, 0.27451, 1)
+shader_parameter/ridge_smoothness = 0.03
+shader_parameter/rim_thickness = 0.49
+shader_parameter/rim_smoothness = 0.1
