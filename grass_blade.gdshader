@@ -9,8 +9,6 @@ uniform vec3 base_color: source_color = vec3(0.0f);
 const vec2 p0 = vec2(0.0, 0.0); // start point, always on origin
 const vec2 p2 = vec2(1.0, 0.0); // end point, always on top. We can move it using rotation tranformation.
 
-varying float t_var;
-
 
 vec2 bezier(float t) {
 	vec2 p01 = mix(p0, p1, t);
@@ -36,17 +34,12 @@ void vertex() {
 	VERTEX.y = bezier_vec.x;
 	VERTEX.z = bezier_vec.y;
 
-	// Pass varyings to fragment shader
-	t_var = t;
+	// Normal calculation needs to be done in vertex shader, since we are still in model space
+	vec2 bezier_normal_vec = bezier_normal(t);
+	NORMAL = vec3(0.0, bezier_normal_vec.x, bezier_normal_vec.y);
 }
 
 void fragment() {
-	vec2 bezier_normal_vec = bezier_normal(t_var);
-	vec3 normal_vec = vec3(0.0, bezier_normal_vec.x, bezier_normal_vec.y);
-	// In theory, we need to apply the next line, but it looks weird
-	// normal_vec = FRONT_FACING ? normal_vec : -normal_vec;
-	NORMAL = normal_vec;
-
 	ALBEDO = base_color;
 }
 
