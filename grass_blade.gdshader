@@ -25,6 +25,29 @@ vec2 bezier_normal(float t) {
 	return normal;
 }
 
+// TODO: turn smoothness params into uniforms
+float fragment_normal(float x_pos) {
+	// Centralize x_pos
+	float x_centralized = -x_pos + 0.5;
+
+	// Central band
+	float band_smoothness = 0.03;
+	float band = smoothstep(-band_smoothness, band_smoothness, x_centralized);
+	float band_inv = 1.0 - band;
+
+	// Rim. TODO: edge values seem broken
+	float rim_smoothness = 0.1;
+	float rim_position = 0.49;
+	float rim = abs(x_centralized);
+	rim = smoothstep(rim_position, rim_position-rim_smoothness, rim);
+
+	float normal = mix(1, -1, mix(band_inv, band, rim));
+
+	float effect_strength = 0.3;
+	return normal * effect_strength;
+
+}
+
 
 void vertex() {
 	float t = VERTEX.y; // goes from 0 to 1, param to bezier curve
@@ -39,7 +62,13 @@ void vertex() {
 	NORMAL = vec3(0.0, bezier_normal_vec.x, bezier_normal_vec.y);
 }
 
+
 void fragment() {
+	// Add a normal component along the x axis, to give the impression of a central ridge and rims.
+	float fragment_normal = fragment_normal(UV.x);
+	// Not sure if we should simply overwrite NORMAL.x or do some additional computation
+	NORMAL = vec3(fragment_normal, NORMAL.y, NORMAL.z);
+
 	ALBEDO = base_color;
 }
 
