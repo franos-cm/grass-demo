@@ -1,14 +1,23 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://iu18owocgspm"]
+[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://iu18owocgspm"]
 
 [ext_resource type="Shader" uid="uid://haes55l31luo" path="res://grass_blade.gdshader" id="1_hbjdc"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_hbjdc"]
+frequency = 0.056
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_3qpus"]
+width = 32
+height = 1
+noise = SubResource("FastNoiseLite_hbjdc")
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_hbjdc")
-shader_parameter/control_p = Vector2(0.45, 0.6)
+shader_parameter/control_p = Vector2(0.65, 0.5)
 shader_parameter/base_width = 0.128
 shader_parameter/middle_width = 0.366
 shader_parameter/base_color = Color(0.388235, 0.682353, 0.27451, 1)
 shader_parameter/ridge_smoothness = 0.03
 shader_parameter/rim_thickness = 0.49
 shader_parameter/rim_smoothness = 0.1
+shader_parameter/veins_texture = SubResource("NoiseTexture2D_3qpus")

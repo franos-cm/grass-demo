@@ -141,7 +141,7 @@ script = SubResource("GDScript_k5kfe")
 mesh = SubResource("PlaneMesh_w5gws")
 
 [node name="GrassBlade" type="MeshInstance3D" parent="MultiMeshInstance3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85657, 0)
+transform = Transform3D(1, 0, 0, 0, 0.99958, -0.0289684, 0, 0.0289684, 0.99958, -0.606128, 2.36298, 0)
 mesh = SubResource("QuadMesh_an6go")
 skeleton = NodePath("../..")
 
