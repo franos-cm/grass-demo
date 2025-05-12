@@ -141,7 +141,7 @@ script = SubResource("GDScript_k5kfe")
 mesh = SubResource("PlaneMesh_w5gws")
 
 [node name="GrassBlade" type="MeshInstance3D" parent="MultiMeshInstance3D"]
-transform = Transform3D(1, 0, 0, 0, 0.99958, -0.0289684, 0, 0.0289684, 0.99958, -0.606128, 2.36298, 0)
+transform = Transform3D(1, 0, 0, 0, 0.989106, 0.147205, 0, -0.147205, 0.989106, 0.0254494, 1.8772, 0)
 mesh = SubResource("QuadMesh_an6go")
 skeleton = NodePath("../..")
 
@@ -149,8 +149,10 @@ skeleton = NodePath("../..")
 transform = Transform3D(-0.217513, 0, 0.976057, 0, 1, 0, -0.976057, 0, -0.217513, 6.15727, 0.630517, 0.191338)
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
-transform = Transform3D(-0.0776239, 0, 0.996983, 0, 1, 0, -0.996983, 0, -0.0776239, 6.19139, 0.449101, 0.0323806)
-visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.45067, 0.656616)
+light_energy = 1.065
+spot_range = 0.7397
+spot_angle = 25.0949
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 2.92135, 0)

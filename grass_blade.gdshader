@@ -40,7 +40,6 @@ vec2 bezier_normal(float t) {
 	return normal;
 }
 
-// TODO: turn smoothness params into uniforms
 float normal_u_coeff(float u_coord) {
 	// Centralize x_pos
 	float u_coord_centered = -u_coord + 0.5;
@@ -83,10 +82,12 @@ void fragment() {
 //
 	// Color and texture
 	// Texture is a one pixel tall greyscale noise, that gets stretched over the length of the blade
-    vec4 tex_color = texture(veins_texture, UV);
+    vec3 tex_color = texture(veins_texture, UV).rgb;
 	// We change the color according to the texture
-    ALBEDO = mix(base_color, 0.66*base_color, tex_color.rgb);
+    ALBEDO = mix(base_color, 0.65*base_color, tex_color);
 
-	//ROUGHNESS = roughness;
-    //SPECULAR = specular;
+	// Lighting.
+	// Honestly, this seems to make just a very small difference, and not sure if its for the better
+	ROUGHNESS = mix(0.6, 0.8, length(tex_color));
+    SPECULAR = mix(0.6, 0.5, length(tex_color));
 }
