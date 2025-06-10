@@ -10,11 +10,14 @@ uniform float base_width: hint_range(0.0, 1.0) = 0.128;
 uniform float middle_width: hint_range(0.0, 1.0) = 0.366;
 group_uniforms;
 
+// Wind params
 group_uniforms Wind;
 uniform float wind_strength: hint_range(0.0, 2.0) = 0.5;
 uniform vec2 wind_direction = vec2(1.0, 0.0);
 uniform float wind_frequency: hint_range(0.1, 5.0) = 1.0;
 uniform float wind_turbulence: hint_range(0.0, 1.0) = 0.3;
+uniform float wind_gust_strength: hint_range(0.0, 3.0) = 1.0;
+uniform float wind_gust_frequency: hint_range(0.01, 0.5) = 0.1;
 group_uniforms;
 
 // Lighting/aesthetical params
@@ -83,8 +86,13 @@ void vertex() {
 	// Wind calculation
     float time = TIME * wind_frequency;
     vec2 wind_wave = wind_direction * sin(time + VERTEX.x * 10.0) * wind_strength;
-    vec2 wind_turb = vec2(sin(time * 1.7 + VERTEX.x * 12.0),
-                         cos(time * 1.3 + VERTEX.x * 8.0)) * wind_turbulence;
+
+    // Turbulence
+	vec2 wind_turb = vec2(sin(time * 1.7 + VERTEX.x * 12.0), cos(time * 1.3 + VERTEX.x * 8.0)) * wind_turbulence;
+
+	// Gusts - slower, stronger movements
+    float gust = smoothstep(0.8, 1.0, sin(TIME * wind_gust_frequency));
+    vec2 wind_gust = wind_direction * gust * wind_gust_strength * t;
 
 	// Pinch x axis so quad has the format of a blade
 	float pinching_coeff = (1.0 - t) * middle_width * (t + base_width);
@@ -92,8 +100,9 @@ void vertex() {
 
 	// Curve the blade through a Bezier curve
 	vec2 control_p = vec2(control_x, control_y);
-	control_p += wind_wave * t; // More effect at top of blade
+	control_p += wind_wave * t;
     control_p += wind_turb * t * 0.3;
+    control_p += wind_gust * t;
 
 	vec2 bezier_vec = bezier(t, control_p);
 	vec2 bezier_normal_vec = bezier_normal(t, control_p);
