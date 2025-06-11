@@ -234,19 +234,16 @@ void fragment() {
 	// Texture is a one pixel tall greyscale noise, that gets stretched over the length of the blade
     vec3 tex_color = texture(veins_texture, UV.yx).rgb;
 	// We change the color according to the texture
-    ALBEDO = mix(base_color, 1.0*base_color, tex_color);
-	// ALBEDO = debug_color.rgb;
-	
-	
-	
-	ALBEDO = world_pos_debug.rgb;
-	ALBEDO = texture(wind_texture, (world_pos_debug.xz + TIME) / 10.0).rgb;
-	//ALBEDO = texture(wind_texture_debug, world_pos_debug.xz / 10.0).rgb;
 	ALBEDO = debug_color.rgb;
 	ALBEDO = mix(base_color, 0.65*base_color, tex_color);
 
 	// Lighting.
-	// Honestly, this seems to make just a very small difference, and not sure if its for the better
-	//ROUGHNESS = mix(0.6, 0.8, length(tex_color));
-    //SPECULAR = mix(0.6, 0.5, length(tex_color));
+	// TODO: change this according to texture map
+
+	
+	ROUGHNESS = mix(0.3, 0.7, length(tex_color));
+    //SPECULAR = mix(0.3, 0.2, length(tex_color));
+	
+	//ROUGHNESS = 0.7;
+    SPECULAR = 0.2;
 }

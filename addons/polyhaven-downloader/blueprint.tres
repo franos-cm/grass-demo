@@ -1,0 +1,5 @@
+[gd_resource type="ORMMaterial3D" format=3 uid="uid://bo0o1atqngpyt"]
+
+[resource]
+uv1_triplanar = true
+uv1_world_triplanar = true
