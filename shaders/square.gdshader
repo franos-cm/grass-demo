@@ -178,7 +178,7 @@ void fragment() {
     vec3 tex_color = texture(veins_texture, UV + TIME/3.0).rgb;
 	// We change the color according to the texture
     // ALBEDO = tex_color;
-	ALBEDO = hash32(UV.xy);
+	//ALBEDO = hash32(UV.xy);
 
 	// Lighting.
 	// Honestly, this seems to make just a very small difference, and not sure if its for the better

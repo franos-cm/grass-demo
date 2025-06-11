@@ -1,6 +1,6 @@
-[gd_resource type="ShaderMaterial" load_steps=6 format=3 uid="uid://iu18owocgspm"]
+[gd_resource type="ShaderMaterial" load_steps=7 format=3 uid="uid://iu18owocgspm"]
 
-[ext_resource type="Shader" uid="uid://haes55l31luo" path="res://grass_blade.gdshader" id="1_hbjdc"]
+[ext_resource type="Shader" uid="uid://haes55l31luo" path="res://shaders/grass_blade.gdshader" id="1_hbjdc"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_hbjdc"]
 frequency = 0.056
@@ -12,17 +12,19 @@ noise = SubResource("FastNoiseLite_hbjdc")
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_3qpus"]
 noise_type = 3
-frequency = 0.0012
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_0mrw5"]
+seamless = true
 noise = SubResource("FastNoiseLite_3qpus")
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_hbjdc"]
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_hbjdc")
-shader_parameter/control_x = 0.65
-shader_parameter/control_y = 0.5
-shader_parameter/base_width = 0.2
+shader_parameter/control_x = 0.25
+shader_parameter/control_y = 0.75
+shader_parameter/base_width = 0.12
 shader_parameter/middle_width = 0.15
 shader_parameter/base_color = Color(0.388235, 0.682353, 0.27451, 1)
 shader_parameter/ridge_smoothness = 0.03
@@ -31,15 +33,16 @@ shader_parameter/rim_smoothness = 0.1
 shader_parameter/side_thickness = 0.6
 shader_parameter/veins_texture = SubResource("NoiseTexture2D_3qpus")
 shader_parameter/wind_texture = SubResource("NoiseTexture2D_0mrw5")
-shader_parameter/wind_tex_scale = 50000.0
+shader_parameter/wind_texture_debug = SubResource("NoiseTexture2D_hbjdc")
+shader_parameter/wind_tex_scale = 75.0
 shader_parameter/wind_distance_offset = 100.0
-shader_parameter/wind_speed_x = 1.0
-shader_parameter/wind_speed_y = 0.2
-shader_parameter/wind_speed_amplitude = 0.7
-shader_parameter/grass_swell_amplitude = 0.6
+shader_parameter/wind_texture_speed_x = 1.0
+shader_parameter/wind_texture_speed_y = 1.0
+shader_parameter/wind_texture_speed = 0.7
+shader_parameter/grass_swell_amplitude = 0.282
 shader_parameter/grass_flutter_speed = 2.0
 shader_parameter/grass_flutter_base_amplitude = 0.5
-shader_parameter/grass_flutter_amplitude = 0.066
+shader_parameter/grass_flutter_amplitude = 0.03
 shader_parameter/wind_effect_base_amplitude = 1.0
 shader_parameter/wind_effect_mid_amplitude = 1.0
 shader_parameter/wind_effect_tip_amplitude = 1.0
