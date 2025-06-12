@@ -23,7 +23,7 @@ group_uniforms;
 group_uniforms Wind;
 uniform sampler2D wind_texture;
 uniform float wind_tex_scale: hint_range(1.0, 500.0) = 75.0;
-uniform float wind_distance_offset: hint_range(0.0, 200.0) = 100.0;
+uniform float swell_randomness: hint_range(0.0, 10.0) = 1.5;
 uniform float wind_texture_speed_x: hint_range(-1.0, 1.0) = 1.0;
 uniform float wind_texture_speed_y: hint_range(-1.0, 1.0) = 0.2;
 uniform float wind_texture_speed: hint_range(0.0, 10.0) = 0.1;
@@ -117,9 +117,8 @@ void vertex() {
 	// Wind: we create the impression of wind by changing the position of the control points
 	// Primary wind motion: swell, ranging from [-grass_swell_amplitude, 0]
 	// Corresponds to vertical "bobbing" of the entire blade, according to a texture map
-	vec2 rand_distance = normalize(vec2(sin(rand_num*PI), cos(rand_num*PI))) * wind_distance_offset;
-
-	vec2 wind_base_uv = (world_position.xz) / wind_tex_scale;
+	vec2 rand_offset = normalize(vec2(sin(rand_num*PI), cos(rand_num*PI))) * swell_randomness;
+	vec2 wind_base_uv = (world_position.xz + rand_offset) / wind_tex_scale;
 	vec2 wind_direction = normalize(vec2(wind_texture_speed_x, wind_texture_speed_y))*wind_texture_speed;
 	// Uses just one texture, but could use more and average between them
 	vec2 wind_uv = panner(wind_base_uv, vec2(0.22, 0.18)*wind_direction, TIME);
@@ -174,5 +173,5 @@ void fragment() {
 	ROUGHNESS = mix(0.3, 0.7, length(tex_color));
 	//SPECULAR = mix(0.3, 0.2, length(tex_color));
 	//ROUGHNESS = 0.7;
-    SPECULAR = 0.2;
+    SPECULAR = 0.15;
 }
