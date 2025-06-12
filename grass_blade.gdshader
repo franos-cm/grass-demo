@@ -1,6 +1,5 @@
 shader_type spatial;
-render_mode cull_disabled, shadows_disabled;
-
+render_mode cull_disabled;
 
 // Base geometrical params
 group_uniforms Shape;
@@ -23,68 +22,33 @@ group_uniforms;
 // Wind
 group_uniforms Wind;
 uniform sampler2D wind_texture;
-uniform sampler2D wind_texture_debug;
-uniform float wind_tex_scale = 75.0;
+uniform float wind_tex_scale: hint_range(1.0, 500.0) = 75.0;
 uniform float wind_distance_offset: hint_range(0.0, 200.0) = 100.0;
 uniform float wind_texture_speed_x: hint_range(-1.0, 1.0) = 1.0;
 uniform float wind_texture_speed_y: hint_range(-1.0, 1.0) = 0.2;
-uniform float wind_texture_speed: hint_range(0.0, 10.0) = 0.7;
+uniform float wind_texture_speed: hint_range(0.0, 10.0) = 0.1;
 uniform float grass_swell_amplitude: hint_range(0.0, 1.0) = 0.4;
 uniform float grass_flutter_speed: hint_range(0.0, 10.0) = 2.0;
 uniform float grass_flutter_base_amplitude: hint_range(0.0, 1.0) = 0.5;
 uniform float grass_flutter_amplitude: hint_range(0.0, 1.0) = 0.03;
 uniform float wind_effect_base_amplitude: hint_range(0.0, 10.0) = 1.0;
-uniform float wind_effect_mid_amplitude: hint_range(0.0, 5.0) = 1.0;
+uniform float wind_effect_mid_amplitude: hint_range(0.0, 5.0) = 1.6;
 uniform float wind_effect_tip_amplitude: hint_range(0.0, 5.0) = 1.0;
 group_uniforms;
 
 // Varyings
 varying vec3 debug_color;
-varying vec3 world_pos_debug;
 
 // Constants
 const vec2 p0_base = vec2(0.0, 0.0);
 const vec2 p2_base = vec2(1.2, 0.75);
 
 
-uint baseHash(uvec3 p)
-{
-    p = 1103515245U*((p.xyz >> 1U)^(p.yzx));
-    uint h32 = 1103515245U*((p.x^p.z)^(p.y>>3U));
-    return h32^(h32 >> uint(16));
-}
-uint baseHash(uvec2 p)
-{
-    p = 1103515245U*((p >> 1U)^(p.yx));
-    uint h32 = 1103515245U*((p.x)^(p.y>>3U));
-    return h32^(h32 >> uint(16));
-}
-uint baseHash(uint p)
-{
-    p = 1103515245U*((p >> 1U)^(p));
-    uint h32 = 1103515245U*((p)^(p>>3U));
-    return h32^(h32 >> uint(16));
-}
-vec3 hash32(vec2 x) {
-	uvec2 p = floatBitsToUint(x);
-    uint n = baseHash(p);
-    uvec3 rz = uvec3(n, n*16807U, n*48271U);
-    return vec3((rz >> uint(1)) & uvec3(0x7fffffffU))/float(0x7fffffff);
-}
-vec2 hash23(vec3 x) {
-	uvec3 p = floatBitsToUint(x);
-    uint n = baseHash(p);
-    uvec2 rz = uvec2(n, n*48271U); //see: http://random.mat.sbg.ac.at/results/karl/server/node4.html
-    return vec2((rz.xy >> uint(1)) & uvec2(0x7fffffffU))/float(0x7fffffff);
-}
-float hash12(vec2 x) {
-	uvec2 p = floatBitsToUint(x);
-    uint n = baseHash(p);
-    return float(n)*(1.0/float(0xffffffffU));
-}
 float hash13(vec3 x) {
 	uvec3 p = floatBitsToUint(x);
-    uint n = baseHash(p);
+	p = 1103515245U*((p.xyz >> 1U)^(p.yzx));
+    uint h32 = 1103515245U*((p.x^p.z)^(p.y>>3U));
+    uint n = h32^(h32 >> uint(16));
     return float(n)*(1.0/float(0xffffffffU));
 }
 
@@ -138,76 +102,48 @@ vec2 panner(vec2 coords, vec2 speed, float time) {
 
 void vertex() {
 	vec3 world_position = MODEL_MATRIX[3].xyz;
-	world_pos_debug = world_position;
-	float rand_num = (hash12(world_position.xz) - 0.5)*2.0; // [-1, 1] range
+	float rand_num = (hash13(world_position) - 0.5)*2.0; // [-1, 1] range
 	float t = VERTEX.x;
-	
-	// Pinch x axis so quad has the format of a blade
+
+	// Pinch z axis so plane has the format of a blade
 	float pinching_coeff = (1.0 - t) * middle_width * (t + base_width);
 	VERTEX.z *= pinching_coeff;
-	
-	// Wind, direction
-	vec2 rand_distance = normalize(vec2(sin(rand_num*PI), cos(rand_num*PI))) * wind_distance_offset;
 
-	vec2 wind_base_uv = (world_position.xz) / wind_tex_scale;
-	vec2 wind_direction = (vec2(wind_texture_speed_x, wind_texture_speed_y))*wind_texture_speed;
-	vec2 wind_uv_1 = panner(wind_base_uv, vec2(0.22, 0.18)*wind_direction, TIME);
-	vec2 wind_uv_2 = panner(wind_base_uv, vec2(0.15, 0.28)*wind_direction, TIME);
-	vec2 wind_uv_3 = panner(wind_base_uv, vec2(0.30, 0.20)*wind_direction, TIME);
-	
-	// Seems very arbitrary
-	// Primary wind motion: swell
-	float grass_swell = (
-		texture(wind_texture, wind_uv_1).r
-	);
-	grass_swell = (grass_swell - 0.5)*2.0;
-	// Remapping to [0, grass_swell_amplitude]
-	grass_swell = -(sin(grass_swell*PI)+1.0) * grass_swell_amplitude / 2.0;
-	
-	
-
-	// Secondary wind motion: flutter
-	// Flutter increases over blade length, and varies over time
-	float grass_flutter = (grass_flutter_base_amplitude * t + TIME) * grass_flutter_speed + rand_num;
-	grass_flutter = (sin(grass_flutter*PI)) * grass_flutter_amplitude / 2.0;
-	
-	// The more swell we have, the less flutter we have
-	float wind_effect = (grass_swell) * wind_effect_base_amplitude;
-	
-
-
-	// Curve the blade through a Bezier curve
+	// Define initial control points that will be used to curve the plane through a Bezier curve
 	vec2 p0 = p0_base;
 	vec2 p1 = vec2(control_x, control_y);
 	vec2 p2 = p2_base;
+
+	// Wind: we create the impression of wind by changing the position of the control points
+	// Primary wind motion: swell, ranging from [-grass_swell_amplitude, 0]
+	// Corresponds to vertical "bobbing" of the entire blade, according to a texture map
+	vec2 rand_distance = normalize(vec2(sin(rand_num*PI), cos(rand_num*PI))) * wind_distance_offset;
+
+	vec2 wind_base_uv = (world_position.xz) / wind_tex_scale;
+	vec2 wind_direction = normalize(vec2(wind_texture_speed_x, wind_texture_speed_y))*wind_texture_speed;
+	// Uses just one texture, but could use more and average between them
+	vec2 wind_uv = panner(wind_base_uv, vec2(0.22, 0.18)*wind_direction, TIME);
+	float grass_swell = texture(wind_texture, wind_uv).r;
+	grass_swell = (grass_swell - 0.5)*2.0; // TODO: probably could do without this remapping
+	grass_swell = -(sin(grass_swell*PI)+1.0) * grass_swell_amplitude / 2.0;
+
+	// Secondary wind motion: flutter, ranging from [-grass_flutter_amplitude/2, grass_flutter_amplitude/2]
+	// Flutter increases over blade length, and is determined (somewhat) randomly for each blade
+	float grass_flutter = (grass_flutter_base_amplitude * t + TIME) * grass_flutter_speed + rand_num;
+	grass_flutter = (sin(grass_flutter*PI)) * grass_flutter_amplitude / 2.0;
+
+	// Total wind effect is a combination of primary and secondary movements
+	float wind_effect = (grass_flutter + grass_swell) * wind_effect_base_amplitude;
+
+	// We update the control points with the wind influence
 	p1 += vec2(wind_effect*wind_effect_mid_amplitude);
 	p2 += vec2(wind_effect*wind_effect_tip_amplitude);
-	
+
+	// Calculate the bezier curves, and deform the xy axes accordingly
 	vec2 bezier_vec = bezier(t, p0, p1, p2);
 	vec2 bezier_normal_vec = bezier_normal(t, p0, p1, p2);
 	VERTEX.xy = vec2(bezier_vec.x, bezier_vec.y);
 	NORMAL.xy = vec2(bezier_normal_vec.x, bezier_normal_vec.y);
-	
-
-	
-	
-	
-	// Wind debug
-	vec3 red_vec = vec3(1.0, 0.0, 0.0); // Red
-	vec3 green_vec = vec3(0.0, 1.0, 0.0); // Green
-	vec3 blue_vec = vec3(0.0, 0.0, 1.0); // Blue
-
-    vec3 final_color;
-    if (grass_swell < 0.5) {
-        float d = grass_swell / 0.5;
-        final_color = mix(red_vec, green_vec, d);
-    } else {
-        float d = (grass_swell - 0.5) / 0.5;
-        final_color = mix(green_vec, blue_vec, d);
-    }
-	debug_color = vec3(final_color);
-	
-
 
 	// View dependent thickening: twist the blade when looking at it exactly sideways
 	mat4 inverse_model_matrix = inverse_model_matrix(MODEL_MATRIX);
@@ -216,10 +152,7 @@ void vertex() {
 	float length_adjustment_coeff = clamp((pow(1.0-t, 0.5)*pow(t+0.05, 0.33)), 0.0, 1.0);
 	float tilt_coeff = alignment_coeff * length_adjustment_coeff * side_thickness;
 	float tilt_vector = normalize(NORMAL.y) * tilt_coeff;
-	//VERTEX.y -= tilt_vector;
-	
-	
-
+	VERTEX.y -= tilt_vector;
 }
 
 
@@ -234,16 +167,12 @@ void fragment() {
 	// Texture is a one pixel tall greyscale noise, that gets stretched over the length of the blade
     vec3 tex_color = texture(veins_texture, UV.yx).rgb;
 	// We change the color according to the texture
-	ALBEDO = debug_color.rgb;
 	ALBEDO = mix(base_color, 0.65*base_color, tex_color);
+	// ALBEDO = debug_color.rgb;
 
 	// Lighting.
-	// TODO: change this according to texture map
-
-	
 	ROUGHNESS = mix(0.3, 0.7, length(tex_color));
-    //SPECULAR = mix(0.3, 0.2, length(tex_color));
-	
+	//SPECULAR = mix(0.3, 0.2, length(tex_color));
 	//ROUGHNESS = 0.7;
     SPECULAR = 0.2;
 }
