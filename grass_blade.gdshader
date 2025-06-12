@@ -138,8 +138,12 @@ void vertex() {
 	p1 += vec2(wind_effect*wind_effect_mid_amplitude);
 	p2 += vec2(wind_effect*wind_effect_tip_amplitude);
 
+	// Length estimative: guarantee that deformations still maintain the same blade length
+	// Possibly uneecessary, in case we want to increase performance
+	float approx_blade_length = (2.0*length(p2 - p0) + length(p1 - p0) + length(p2 - p1)) / 3.0;
+
 	// Calculate the bezier curves, and deform the xy axes accordingly
-	vec2 bezier_vec = bezier(t, p0, p1, p2);
+	vec2 bezier_vec = bezier(t, p0, p1, p2) / approx_blade_length;
 	vec2 bezier_normal_vec = bezier_normal(t, p0, p1, p2);
 	VERTEX.xy = vec2(bezier_vec.x, bezier_vec.y);
 	NORMAL.xy = vec2(bezier_normal_vec.x, bezier_normal_vec.y);
