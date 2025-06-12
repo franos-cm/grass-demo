@@ -1,7 +1,7 @@
 [gd_scene load_steps=2 format=3 uid="uid://b3rq48668rven"]
 
-[ext_resource type="Script" path="res://addons/polyhaven-downloader/polyhaven_downloader.gd" id="1_nwibj"]
+[ext_resource type="Script" uid="uid://dwnkdfw54d05c" path="res://addons/polyhaven-downloader/polyhaven_downloader.gd" id="1_nwibj"]
 
 [node name="PolyHavenDownloader" type="Node"]
 script = ExtResource("1_nwibj")
-requested_texture = "brick_wall_001"
+requested_texture = "brown_mud_leaves_01"

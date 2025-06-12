@@ -8,9 +8,7 @@ func _ready():
 	# Ensure the MultiMesh resource exists and is properly configured.
 	# If you created the MultiMesh resource in the inspector, it will already be set.
 	# If not, you might need to create it here:
-	print("AAAAAAAAAAAAA")
 	if not multimesh:
-		print("BBBBBBBBBBBBB")
 		multimesh = MultiMesh.new()
 		# You MUST set the mesh here if you are creating the MultiMesh in code.
 		# Example: multimesh.mesh = preload("res://path/to/your/mesh.res")
