@@ -21,6 +21,7 @@ uniform float gloss_amount: hint_range(0.0, 1.0) = 0.5;
 uniform float clearcoat_level: hint_range(0.0, 1.0) = 0.05;
 uniform float clearcoat_roughness: hint_range(0.0, 1.0) = 0.2;
 uniform float base_ao: hint_range(0.0, 1.0) = 0.25;
+uniform float veins_strength: hint_range(0.0, 1.0) = 0.3;
 uniform sampler2D veins_texture;
 group_uniforms;
 
@@ -73,20 +74,17 @@ vec2 bezier_normal(float t, vec2 p0, vec2 p1, vec2 p2) {
 	return normal;
 }
 
-float normal_u_coeff(float u_coord) {
-	// Centralize x_pos
-	float u_coord_centered = -u_coord + 0.5;
-
-	// Central band
+vec2 normal_adjustment_coeff(vec2 uv) {
+	// Adjustment along the width of the blade (u coord)
+	float u_coord_centered = -uv.x + 0.5;
 	float band = smoothstep(-ridge_smoothness, ridge_smoothness, u_coord_centered);
 	float band_inv = 1.0 - band;
-
-	// Rim. TODO: edge values seem broken
-	float rim = abs(u_coord_centered);
+	float rim = abs(u_coord_centered); // TODO: edge values seem broken
 	rim = smoothstep(rim_thickness, rim_thickness-rim_smoothness, rim);
-
-	float coeff = mix(1, -1, mix(band_inv, band, rim));
-	return coeff * details_effect_strength;
+	float u_coeff = mix(1, -1, mix(band_inv, band, rim));
+	
+	// First element adjusts in TANGENT direction, second element in BINORMAL direction
+	return vec2(u_coeff, 0.0) * details_effect_strength;
 }
 
 // TODO: could be good to have this pre-calculated
@@ -193,18 +191,20 @@ void vertex() {
 }
 
 
+// FIXME: axis used for mesh makes UV inverted... so currently we are doing vec.yx for a lot of stuff
 void fragment() {
 	// Add a normal component along the x axis, to give the impression of a central ridge and outer rims.
 	// First we need to calculate how "strong" this new component is going to be for every pixel
-	float u_coeff = normal_u_coeff(UV.y);
 	// Then we pertube the NORMAL vec, by adding a scaled TANGENT vec (which already points towards the u axis)
-	//NORMAL = normalize(NORMAL + TANGENT * u_coeff);
+	vec2 adjustment_coeffs = normal_adjustment_coeff(UV.yx).yx;
+	vec3 normal_adjustment_vec = TANGENT*adjustment_coeffs.x + BINORMAL*adjustment_coeffs.y;
+	NORMAL = normalize(NORMAL + normal_adjustment_vec);
 
 	// Color and texture
 	// Texture is a one pixel tall greyscale noise, that gets stretched over the length of the blade
     vec3 tex_color = texture(veins_texture, UV.yx).rgb;
 	// We change the color according to the texture
-	ALBEDO = mix(base_color, 0.65*base_color, tex_color);
+	ALBEDO = mix(base_color, (1.0-veins_strength)*base_color, tex_color);
 	//ALBEDO = debug_color.rgb;
 
     // Lightning
