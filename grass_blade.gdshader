@@ -25,8 +25,8 @@ group_uniforms Wind;
 uniform sampler2D wind_texture;
 uniform float wind_tex_scale: hint_range(1.0, 500.0) = 75.0;
 uniform float swell_randomness: hint_range(0.0, 10.0) = 1.5;
-uniform float wind_texture_speed_x: hint_range(-1.0, 1.0) = 1.0;
-uniform float wind_texture_speed_y: hint_range(-1.0, 1.0) = 0.2;
+uniform float wind_texture_speed_x: hint_range(-1.0, 1.0) = -1.0;
+uniform float wind_texture_speed_y: hint_range(-1.0, 1.0) = -0.2;
 uniform float wind_texture_speed: hint_range(0.0, 10.0) = 0.4;
 uniform float grass_swell_amplitude: hint_range(0.0, 1.0) = 0.4;
 uniform float grass_flutter_speed: hint_range(0.0, 10.0) = 2.0;
@@ -137,8 +137,8 @@ void vertex() {
 	float wind_effect = (grass_flutter + grass_swell) * wind_effect_base_amplitude;
 
 	// We update the control points with the wind influence
-	//p1 += vec2(wind_effect*wind_effect_mid_amplitude);
-	//p2 += vec2(wind_effect*wind_effect_tip_amplitude);
+	p1 += vec2(wind_effect*wind_effect_mid_amplitude);
+	p2 += vec2(wind_effect*wind_effect_tip_amplitude);
 
 	// Length estimative: guarantee that deformations still maintain the same blade length
 	// At the moment, I think it makes the visuals overall worse, and at a cost to performance
