@@ -24,18 +24,18 @@ group_uniforms;
 group_uniforms Wind;
 uniform sampler2D wind_texture;
 uniform float wind_tex_scale: hint_range(1.0, 500.0) = 75.0;
-uniform float swell_randomness: hint_range(0.0, 10.0) = 1.5;
-uniform float wind_texture_speed_x: hint_range(-1.0, 1.0) = -1.0;
-uniform float wind_texture_speed_y: hint_range(-1.0, 1.0) = -0.2;
+uniform float wind_direction_randomness: hint_range(0.0, 10.0) = 1.5;
+uniform float wind_texture_speed_x: hint_range(-1.0, 1.0) = -0.2;
+uniform float wind_texture_speed_y: hint_range(-1.0, 1.0) = -0.04;
 uniform float wind_texture_speed: hint_range(0.0, 10.0) = 0.4;
-uniform float grass_swell_amplitude: hint_range(0.0, 1.0) = 0.4;
-uniform float grass_flutter_speed: hint_range(0.0, 10.0) = 2.0;
-uniform float grass_flutter_base_amplitude: hint_range(0.0, 1.0) = 0.5;
-uniform float grass_flutter_amplitude: hint_range(0.0, 1.0) = 0.03;
+uniform float grass_swell_amplitude: hint_range(0.0, 1.0) = 0.5;
+uniform float flutter_frequency: hint_range(0.0, 10.0) = 2.0;
+uniform float flutter_speed: hint_range(0.0, 10.0) = 0.5;
+uniform float flutter_amplitude: hint_range(0.0, 1.0) = 0.03;
 uniform float wind_effect_base_amplitude: hint_range(0.0, 2.0) = 0.4;
 uniform float wind_effect_mid_amplitude: hint_range(0.0, 5.0) = 1.6;
 uniform float wind_effect_tip_amplitude: hint_range(0.0, 5.0) = 1.0;
-uniform float wind_turn_amplitude : hint_range(0.0, 1.0) = 0.7;
+uniform float wind_pivot_amplitude : hint_range(0.0, 1.0) = 0.6;
 group_uniforms;
 
 // Varyings
@@ -99,81 +99,87 @@ vec2 panner(vec2 coords, vec2 speed, float time) {
 	return coords + (speed*time);
 }
 
+mat2 rotate_y(float angle) {
+  float s = sin(angle), c = cos(angle);
+  return mat2(vec2(c, s), vec2(-s, c));
+}
+
+float sample_wind_strength(vec3 world_position, float rand_num) {
+	vec2 wind_direction = (vec2(wind_texture_speed_x, wind_texture_speed_y))*wind_texture_speed;
+	vec2 wind_direction_offset = normalize(vec2(sin(rand_num*PI), cos(rand_num*PI))) * wind_direction_randomness;
+	vec2 wind_base_uv = (world_position.xz + wind_direction_offset) / wind_tex_scale;
+	vec2 wind_uv = panner(wind_base_uv, wind_direction, TIME); // TODO: could use more textures and average between them
+	return texture(wind_texture, wind_uv).r;
+}
+
+mat2 pivot_blade(float wind_strength, float t, mat4 inverse_model_matrix) {
+	float pivot_strength = wind_strength * wind_pivot_amplitude;
+	vec3 wind_direction_world = vec3(wind_texture_speed_x, 0.0, wind_texture_speed_y);
+	vec3 wind_direction_model = normalize((inverse_model_matrix * vec4(wind_direction_world, 0.0)).xyz );
+	
+	const vec2 base_blade_direction = vec2(1.0, 0.0);
+	vec2 wind_blade_direction = -(vec2(wind_direction_model.x, wind_direction_model.z));
+	
+	vec2  final_blade_direction = mix(base_blade_direction, wind_blade_direction, pivot_strength);
+	float pivot_angle = atan(final_blade_direction.y, final_blade_direction.x);
+
+	float pivot_length_coeff = clamp(pow(t, 2.0) + 0.05, 0.0, 1.0);
+	return rotate_y(pivot_angle * pivot_length_coeff);
+}
+
 
 void vertex() {
+	// Useful variables used throughout vertex shader
+	mat4 inverse_model_matrix = inverse_model_matrix(MODEL_MATRIX);
 	vec3 world_position = MODEL_MATRIX[3].xyz;
 	float rand_num = (hash13(world_position) - 0.5)*2.0; // [-1, 1] range
 	float t = VERTEX.x;
-
-	// Pinch z axis so plane has the format of a blade
-	float pinching_coeff = (1.0 - t) * middle_width * (t + base_width);
-	VERTEX.z *= pinching_coeff;
-
+	
 	// Define initial control points that will be used to curve the plane through a Bezier curve
 	vec2 p0 = p0_base;
 	vec2 p1 = vec2(control_x, control_y);
 	vec2 p2 = p2_base;
 
-	// Wind: we create the impression of wind by changing the position of the control points
+	// Pinch z axis so plane has the format of a blade
+	float pinching_coeff = (1.0 - t) * middle_width * (t + base_width);
+	VERTEX.z *= pinching_coeff;
+
+	// Wind: we create the impression of wind by changing the position
+	//       of the control points and pivoting the blade over time
+	float wind_strength = sample_wind_strength(world_position, rand_num);
+
+	// For the control point manipulation, there are two types of motion: swelling and fluttering.
 	// Primary wind motion: swell, ranging from [-grass_swell_amplitude, 0]
 	// Corresponds to vertical "bobbing" of the entire blade, according to a texture map
-	vec2 rand_offset = normalize(vec2(sin(rand_num*PI), cos(rand_num*PI))) * swell_randomness;
-	vec2 wind_base_uv = (world_position.xz + rand_offset) / wind_tex_scale;
-	vec2 wind_direction = (vec2(wind_texture_speed_x, wind_texture_speed_y))*wind_texture_speed;
-	debug_color = (vec3(wind_texture_speed_x, wind_texture_speed_y, 0));
-	// Uses just one texture, but could use more and average between them
-	vec2 wind_uv = panner(wind_base_uv, vec2(0.22, 0.18)*wind_direction, TIME);
-	float grass_swell = texture(wind_texture, wind_uv).r;
-	float grass_swell2 = grass_swell;
-	grass_swell = (grass_swell - 0.5)*2.0; // TODO: probably could do without this remapping
+	float grass_swell = (wind_strength - 0.5)*2.0;
 	grass_swell = -(sin(grass_swell*PI)+1.0) * grass_swell_amplitude / 2.0;
 
-	// Secondary wind motion: flutter, ranging from [-grass_flutter_amplitude/2, grass_flutter_amplitude/2]
+	// Secondary wind motion: flutter, ranging from [-flutter_amplitude/2, flutter_amplitude/2]
 	// Flutter increases over blade length, and is determined (somewhat) randomly for each blade
-	float grass_flutter = (grass_flutter_base_amplitude * t + TIME) * grass_flutter_speed + rand_num;
-	grass_flutter = (sin(grass_flutter*PI)) * grass_flutter_amplitude / 2.0;
-
-	// Total wind effect is a combination of primary and secondary movements
-	float wind_effect = (grass_flutter + grass_swell) * wind_effect_base_amplitude;
+	float grass_flutter = (t + flutter_speed*TIME) * flutter_frequency + rand_num;
+	grass_flutter = (sin(grass_flutter*PI)) * flutter_amplitude / 2.0;
 
 	// We update the control points with the wind influence
-	p1 += vec2(wind_effect*wind_effect_mid_amplitude);
-	p2 += vec2(wind_effect*wind_effect_tip_amplitude);
-
-	// Length estimative: guarantee that deformations still maintain the same blade length
-	// At the moment, I think it makes the visuals overall worse, and at a cost to performance
-	float approx_blade_length = (2.0*length(p2 - p0) + length(p1 - p0) + length(p2 - p1)) / 3.0;
-	approx_blade_length = 1.0; // Disabling effect
-
+	vec2 p1_wind_effect = vec2(0, grass_swell);
+	p1 += p1_wind_effect * wind_effect_base_amplitude * wind_effect_mid_amplitude;
+	vec2 p2_wind_effect = vec2(grass_swell, grass_swell+grass_flutter);
+	p2 += p2_wind_effect * wind_effect_base_amplitude * wind_effect_tip_amplitude;
+	
 	// Calculate the bezier curves, and deform the xy axes accordingly
-	vec2 bezier_vec = bezier(t, p0, p1, p2) / approx_blade_length;
+	vec2 bezier_vec = bezier(t, p0, p1, p2);
 	vec2 bezier_normal_vec = bezier_normal(t, p0, p1, p2);
-	VERTEX.xy = vec2(bezier_vec.x, bezier_vec.y);
+	// Length estimative: guarantee that wind deformations still maintain the same blade length
+	float approx_blade_length = 1.0; // (2.0*length(p2 - p0) + length(p1 - p0) + length(p2 - p1)) / 3.0;
+	VERTEX.xy = vec2(bezier_vec.x, bezier_vec.y) / approx_blade_length;
 	NORMAL.xy = vec2(bezier_normal_vec.x, bezier_normal_vec.y);
+	
+	// Tertiary wind motion: pivoting the blade to face the wind
+	mat2 grass_pivot = pivot_blade(wind_strength, t, inverse_model_matrix);
+	VERTEX.xz  = grass_pivot * VERTEX.xz;
+	NORMAL.xz  = grass_pivot * NORMAL.xz;
+	TANGENT.xz = grass_pivot * TANGENT.xz;
 
 	// View dependent thickening: twist the blade when looking at it exactly sideways
-	mat4 inverse_model_matrix = inverse_model_matrix(MODEL_MATRIX);
-	
-	// Turn
-	vec3 wind_world = vec3(wind_texture_speed_x, 0.0, wind_texture_speed_y);
-	vec3 wind_model = normalize( (inverse_model_matrix * vec4(wind_world, 0.0)).xyz );
-
-	const vec2 forward = vec2(1.0, 0.0);
-	vec2 wind_vec = -(vec2(wind_model.x, wind_model.z));
-	
-	float turn_strength = grass_swell2 * wind_turn_amplitude;
-	vec2  blended_dir   = normalize( mix(forward, wind_vec, turn_strength) );
-	
-	float wind_angle  = atan(blended_dir.y, blended_dir.x);
-	float yaw = wind_angle;
-	float cs = cos(yaw);
-	float sn = sin(yaw);
-	mat2 rot = mat2(vec2(cs, sn), vec2(-sn, cs));
-	
-	VERTEX.xz  = rot * VERTEX.xz;
-	NORMAL.xz  = rot * NORMAL.xz;
-	TANGENT.xz = rot * TANGENT.xz;
-	
 	vec3 camera_direction_model = (inverse_model_matrix * vec4(CAMERA_DIRECTION_WORLD, 0.0)).xyz;
 	float alignment_coeff = VERTEX.z * camera_direction_model.z;
 	float length_adjustment_coeff = clamp(pow(1.0-t, 1.5)*t+0.05, 0.0, 1.0);
