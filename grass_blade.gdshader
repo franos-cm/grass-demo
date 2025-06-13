@@ -20,6 +20,7 @@ uniform float rim_smoothness: hint_range(0.0, 0.3) = 0.1;
 uniform float gloss_amount: hint_range(0.0, 1.0) = 0.5;
 uniform float clearcoat_level: hint_range(0.0, 1.0) = 0.05;
 uniform float clearcoat_roughness: hint_range(0.0, 1.0) = 0.2;
+uniform float base_ao: hint_range(0.0, 1.0) = 0.25;
 uniform sampler2D veins_texture;
 group_uniforms;
 
@@ -197,7 +198,7 @@ void fragment() {
 	// First we need to calculate how "strong" this new component is going to be for every pixel
 	float u_coeff = normal_u_coeff(UV.y);
 	// Then we pertube the NORMAL vec, by adding a scaled TANGENT vec (which already points towards the u axis)
-	NORMAL = normalize(NORMAL + TANGENT * u_coeff);
+	//NORMAL = normalize(NORMAL + TANGENT * u_coeff);
 
 	// Color and texture
 	// Texture is a one pixel tall greyscale noise, that gets stretched over the length of the blade
@@ -207,11 +208,10 @@ void fragment() {
 	//ALBEDO = debug_color.rgb;
 
     // Lightning
-    // a gentle rim gloss accent: leaf edges appear waxier
-    float rim_gloss  = smoothstep(0.2, 0.5, abs(UV.x - 0.5));
-    float gloss = clamp(gloss_amount * (0.6 + 0.4 * rim_gloss), 0.0, 1.0);
+	float gloss = clamp(gloss_amount*UV.x, 0.0, 1.0);
     ROUGHNESS = mix(0.8, 0.05, gloss);
     SPECULAR = mix(0.05, 0.25, gloss);
     CLEARCOAT = clearcoat_level * gloss;
     CLEARCOAT_ROUGHNESS = clearcoat_roughness;
+	AO = mix(base_ao, 1.0, UV.x);
 }

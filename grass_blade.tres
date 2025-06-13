@@ -34,6 +34,7 @@ shader_parameter/rim_smoothness = 0.1
 shader_parameter/gloss_amount = 0.5
 shader_parameter/clearcoat_level = 0.05
 shader_parameter/clearcoat_roughness = 0.2
+shader_parameter/base_ao = 0.25
 shader_parameter/veins_texture = SubResource("NoiseTexture2D_3qpus")
 shader_parameter/wind_texture = SubResource("NoiseTexture2D_0mrw5")
 shader_parameter/wind_tex_scale = 75.0
