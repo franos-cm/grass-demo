@@ -4,18 +4,19 @@ render_mode cull_disabled;
 // Base geometrical params
 group_uniforms Shape;
 uniform float control_x : hint_range(-1.0, 1.0) = 0.25;
-uniform float control_y : hint_range(-1.0, 1.0) = 0.75;
-uniform float base_width: hint_range(0.0, 1.0) = 0.12;
-uniform float middle_width: hint_range(0.0, 1.0) = 0.15;
+uniform float control_y : hint_range(-2.0, 2.0) = 0.75;
+uniform float base_width: hint_range(0.0, 1.0) = 0.7;
+uniform float middle_width: hint_range(0.0, 1.0) = 0.135;
+uniform float side_thickness: hint_range(0.0, 2.0) = 1.0;
 group_uniforms;
 
 // Lighting/aesthetical params
 group_uniforms Lighting;
-uniform vec3 base_color: source_color = vec3(0.56, 0.63, 0.22);
+uniform vec3 base_color: source_color = vec3(0.55, 0.63, 0.24);
+uniform float details_effect_strength: hint_range(0.0, 0.6) = 0.1;
 uniform float ridge_smoothness: hint_range(0.0, 0.3) = 0.03;
 uniform float rim_thickness: hint_range(0.3, 0.5) = 0.49;
 uniform float rim_smoothness: hint_range(0.0, 0.3) = 0.1;
-uniform float side_thickness: hint_range(0.3, 2.0) = 0.6;
 uniform sampler2D veins_texture;
 group_uniforms;
 
@@ -26,14 +27,15 @@ uniform float wind_tex_scale: hint_range(1.0, 500.0) = 75.0;
 uniform float swell_randomness: hint_range(0.0, 10.0) = 1.5;
 uniform float wind_texture_speed_x: hint_range(-1.0, 1.0) = 1.0;
 uniform float wind_texture_speed_y: hint_range(-1.0, 1.0) = 0.2;
-uniform float wind_texture_speed: hint_range(0.0, 10.0) = 0.1;
+uniform float wind_texture_speed: hint_range(0.0, 10.0) = 0.4;
 uniform float grass_swell_amplitude: hint_range(0.0, 1.0) = 0.4;
 uniform float grass_flutter_speed: hint_range(0.0, 10.0) = 2.0;
 uniform float grass_flutter_base_amplitude: hint_range(0.0, 1.0) = 0.5;
 uniform float grass_flutter_amplitude: hint_range(0.0, 1.0) = 0.03;
-uniform float wind_effect_base_amplitude: hint_range(0.0, 10.0) = 1.0;
+uniform float wind_effect_base_amplitude: hint_range(0.0, 2.0) = 0.4;
 uniform float wind_effect_mid_amplitude: hint_range(0.0, 5.0) = 1.6;
 uniform float wind_effect_tip_amplitude: hint_range(0.0, 5.0) = 1.0;
+uniform float wind_turn_amplitude : hint_range(0.0, 1.0) = 0.7;
 group_uniforms;
 
 // Varyings
@@ -80,9 +82,7 @@ float normal_u_coeff(float u_coord) {
 	rim = smoothstep(rim_thickness, rim_thickness-rim_smoothness, rim);
 
 	float coeff = mix(1, -1, mix(band_inv, band, rim));
-
-	float effect_strength = 0.5;
-	return coeff * effect_strength;
+	return coeff * details_effect_strength;
 }
 
 // TODO: could be good to have this pre-calculated
@@ -119,10 +119,12 @@ void vertex() {
 	// Corresponds to vertical "bobbing" of the entire blade, according to a texture map
 	vec2 rand_offset = normalize(vec2(sin(rand_num*PI), cos(rand_num*PI))) * swell_randomness;
 	vec2 wind_base_uv = (world_position.xz + rand_offset) / wind_tex_scale;
-	vec2 wind_direction = normalize(vec2(wind_texture_speed_x, wind_texture_speed_y))*wind_texture_speed;
+	vec2 wind_direction = (vec2(wind_texture_speed_x, wind_texture_speed_y))*wind_texture_speed;
+	debug_color = (vec3(wind_texture_speed_x, wind_texture_speed_y, 0));
 	// Uses just one texture, but could use more and average between them
 	vec2 wind_uv = panner(wind_base_uv, vec2(0.22, 0.18)*wind_direction, TIME);
 	float grass_swell = texture(wind_texture, wind_uv).r;
+	float grass_swell2 = grass_swell;
 	grass_swell = (grass_swell - 0.5)*2.0; // TODO: probably could do without this remapping
 	grass_swell = -(sin(grass_swell*PI)+1.0) * grass_swell_amplitude / 2.0;
 
@@ -135,12 +137,13 @@ void vertex() {
 	float wind_effect = (grass_flutter + grass_swell) * wind_effect_base_amplitude;
 
 	// We update the control points with the wind influence
-	p1 += vec2(wind_effect*wind_effect_mid_amplitude);
-	p2 += vec2(wind_effect*wind_effect_tip_amplitude);
+	//p1 += vec2(wind_effect*wind_effect_mid_amplitude);
+	//p2 += vec2(wind_effect*wind_effect_tip_amplitude);
 
 	// Length estimative: guarantee that deformations still maintain the same blade length
-	// Possibly uneecessary, in case we want to increase performance
+	// At the moment, I think it makes the visuals overall worse, and at a cost to performance
 	float approx_blade_length = (2.0*length(p2 - p0) + length(p1 - p0) + length(p2 - p1)) / 3.0;
+	approx_blade_length = 1.0; // Disabling effect
 
 	// Calculate the bezier curves, and deform the xy axes accordingly
 	vec2 bezier_vec = bezier(t, p0, p1, p2) / approx_blade_length;
@@ -150,9 +153,30 @@ void vertex() {
 
 	// View dependent thickening: twist the blade when looking at it exactly sideways
 	mat4 inverse_model_matrix = inverse_model_matrix(MODEL_MATRIX);
+	
+	// Turn
+	vec3 wind_world = vec3(wind_texture_speed_x, 0.0, wind_texture_speed_y);
+	vec3 wind_model = normalize( (inverse_model_matrix * vec4(wind_world, 0.0)).xyz );
+
+	const vec2 forward = vec2(1.0, 0.0);
+	vec2 wind_vec = -(vec2(wind_model.x, wind_model.z));
+	
+	float turn_strength = grass_swell2 * wind_turn_amplitude;
+	vec2  blended_dir   = normalize( mix(forward, wind_vec, turn_strength) );
+	
+	float wind_angle  = atan(blended_dir.y, blended_dir.x);
+	float yaw = wind_angle;
+	float cs = cos(yaw);
+	float sn = sin(yaw);
+	mat2 rot = mat2(vec2(cs, sn), vec2(-sn, cs));
+	
+	VERTEX.xz  = rot * VERTEX.xz;
+	NORMAL.xz  = rot * NORMAL.xz;
+	TANGENT.xz = rot * TANGENT.xz;
+	
 	vec3 camera_direction_model = (inverse_model_matrix * vec4(CAMERA_DIRECTION_WORLD, 0.0)).xyz;
 	float alignment_coeff = VERTEX.z * camera_direction_model.z;
-	float length_adjustment_coeff = clamp((pow(1.0-t, 0.5)*pow(t+0.05, 0.33)), 0.0, 1.0);
+	float length_adjustment_coeff = clamp(pow(1.0-t, 1.5)*t+0.05, 0.0, 1.0);
 	float tilt_coeff = alignment_coeff * length_adjustment_coeff * side_thickness;
 	float tilt_vector = normalize(NORMAL.y) * tilt_coeff;
 	VERTEX.y -= tilt_vector;
@@ -171,7 +195,7 @@ void fragment() {
     vec3 tex_color = texture(veins_texture, UV.yx).rgb;
 	// We change the color according to the texture
 	ALBEDO = mix(base_color, 0.65*base_color, tex_color);
-	// ALBEDO = debug_color.rgb;
+	//ALBEDO = debug_color.rgb;
 
 	// Lighting.
 	ROUGHNESS = mix(0.3, 0.7, length(tex_color));
