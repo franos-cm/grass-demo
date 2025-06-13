@@ -17,6 +17,9 @@ uniform float details_effect_strength: hint_range(0.0, 0.6) = 0.1;
 uniform float ridge_smoothness: hint_range(0.0, 0.3) = 0.03;
 uniform float rim_thickness: hint_range(0.3, 0.5) = 0.49;
 uniform float rim_smoothness: hint_range(0.0, 0.3) = 0.1;
+uniform float gloss_amount: hint_range(0.0, 1.0) = 0.5;
+uniform float clearcoat_level: hint_range(0.0, 1.0) = 0.05;
+uniform float clearcoat_roughness: hint_range(0.0, 1.0) = 0.2;
 uniform sampler2D veins_texture;
 group_uniforms;
 
@@ -203,9 +206,12 @@ void fragment() {
 	ALBEDO = mix(base_color, 0.65*base_color, tex_color);
 	//ALBEDO = debug_color.rgb;
 
-	// Lighting.
-	ROUGHNESS = mix(0.3, 0.7, length(tex_color));
-	//SPECULAR = mix(0.3, 0.2, length(tex_color));
-	//ROUGHNESS = 0.7;
-    SPECULAR = 0.15;
+    // Lightning
+    // a gentle rim gloss accent: leaf edges appear waxier
+    float rim_gloss  = smoothstep(0.2, 0.5, abs(UV.x - 0.5));
+    float gloss = clamp(gloss_amount * (0.6 + 0.4 * rim_gloss), 0.0, 1.0);
+    ROUGHNESS = mix(0.8, 0.05, gloss);
+    SPECULAR = mix(0.05, 0.25, gloss);
+    CLEARCOAT = clearcoat_level * gloss;
+    CLEARCOAT_ROUGHNESS = clearcoat_roughness;
 }
