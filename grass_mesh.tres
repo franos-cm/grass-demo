@@ -1,9 +1,0 @@
-[gd_resource type="PlaneMesh" load_steps=2 format=3 uid="uid://b28ffsg2x4ipw"]
-
-[ext_resource type="Material" uid="uid://iu18owocgspm" path="res://grass_blade.tres" id="1_caaeu"]
-
-[resource]
-material = ExtResource("1_caaeu")
-size = Vector2(1, 1)
-subdivide_width = 8
-center_offset = Vector3(0.5, 0, 0)
