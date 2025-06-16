@@ -9,9 +9,9 @@ const big_number = 1000
 func _ready():
 	var high = new_mesh(16, estimate_number_of_instances_in_the_circle(high_definition_radius/density))
 	var high_count = 0
-	var medium = new_mesh(0, estimate_number_of_instances_in_the_circle(high_definition_radius/density))
+	var medium = new_mesh(8, estimate_number_of_instances_in_the_circle(high_definition_radius/density))
 	var medium_count = 0;
-	var low = new_mesh(0, big_number*big_number)
+	var low = new_mesh(2, big_number*big_number)
 	var low_count = 0;
 
 	for i in range(big_number*big_number):
