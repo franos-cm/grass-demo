@@ -1,7 +1,35 @@
-# Godot 4+ specific ignores
-.godot/
-/android/
+# Pastas de configuração local e cache do Godot
+godot/
 .import/
+
+# Arquivos de exportação e configurações
 export.cfg
 export_presets.cfg
-mono/
+
+# Mono/C# (se não usar, pode remover)
+.mono/
+*.csproj
+*.sln
+*.userprefs
+
+# Arquivos temporários e logs
+*.tmp
+*.temp
+*.log
+
+# Arquivos do sistema (Windows, macOS, Linux)
+Thumbs.db
+.DS_Store
+*~
+
+# Plugins e arquivos importantes do Heightmap Terrain - manter esses arquivos
+# Ajuste o caminho se seus arquivos estiverem em outra pasta
+!t_data/*.data
+!t_data/*.png
+!t_data/*.res
+!t_data/*.tres
+
+# Ignorar importações do Godot, mas não os arquivos de terreno
+.import/
+
+# Se sua pasta de dados do terreno for diferente, ajuste as linhas acima
