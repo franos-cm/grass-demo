@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://bnmmees1htys4"]
+[gd_scene load_steps=18 format=3 uid="uid://bnmmees1htys4"]
 
 [ext_resource type="Script" uid="uid://cdv2ma2wlry3x" path="res://addons/zylann.hterrain/hterrain.gd" id="1_ic0uy"]
 [ext_resource type="Resource" uid="uid://dunpa0kphh1lo" path="res://terrain_data/data.hterrain" id="2_ic0uy"]
@@ -11,6 +11,8 @@
 [ext_resource type="Texture2D" uid="uid://degufkc623v7c" path="res://terrain_textures/slot1_normal_roughness.png" id="9_cbp6q"]
 [ext_resource type="Texture2D" uid="uid://qeuluu6xrm7k" path="res://terrain_textures/slot2_normal_roughness.png" id="10_26xuy"]
 [ext_resource type="Texture2D" uid="uid://b0pe3ajmdrf73" path="res://textures_raw/Rock028_1K-JPG/Rock028_1K-JPG_NormalGL.jpg" id="11_k3n1d"]
+[ext_resource type="Script" uid="uid://byx5fwvd0r3eu" path="res://scripts/grass_spawner.gd" id="12_k3n1d"]
+[ext_resource type="PackedScene" uid="uid://fh42rc4l5e68" path="res://grass.tscn" id="13_2o6r5"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wukud"]
 
@@ -54,3 +56,9 @@ shader_params/u_depth_blending = true
 shader_params/u_triplanar = null
 shader_params/u_tile_reduction = Vector4(1, 1, 1, 1)
 metadata/_custom_type_script = "uid://cdv2ma2wlry3x"
+
+[node name="GrassSpawner" type="Node3D" parent="." node_paths=PackedStringArray("hterrain")]
+script = ExtResource("12_k3n1d")
+hterrain = NodePath("../HTerrain")
+grass_scene = ExtResource("13_2o6r5")
+area_max = Vector2(1024, 1024)
