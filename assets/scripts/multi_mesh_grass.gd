@@ -68,6 +68,8 @@ func maybe_fill_chunk(chunk: Chunk, player_position: Vector3):
 	if chunk.density == density and chunk.quality == quality:
 		# same, no need to change
 		return
+		
+	print("drawing ", chunk.index)
 	
 	var count_side: int = ceil(chunk_size/density)
 	chunk.mmi.multimesh.instance_count = count_side*count_side
@@ -82,8 +84,11 @@ func maybe_fill_chunk(chunk: Chunk, player_position: Vector3):
 			var t = Transform3D(rotation, Vector3(x, 0, z))
 			chunk.mmi.multimesh.set_instance_transform(i*count_side+j, t)
 	
+	chunk.density = density
+	chunk.quality = quality
+	
 
-#func _process(_delta: float) -> void:
-	#for chunk in chunks:
-		#maybe_fill_chunk(chunk, player.global_position)
+func _process(_delta: float) -> void:
+	for chunk in chunks:
+		maybe_fill_chunk(chunk, player.global_position)
 	#print("fps: ", Engine.get_frames_per_second())
