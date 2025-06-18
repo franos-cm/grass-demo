@@ -9,6 +9,7 @@ alpha_antialiasing_mode = 0
 albedo_texture = ExtResource("1_kl2qe")
 
 [sub_resource type="QuadMesh" id="QuadMesh_2qnaq"]
+size = Vector2(10, 20)
 
 [node name="Grass" type="Node3D"]
 
