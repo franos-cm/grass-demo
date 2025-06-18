@@ -2,18 +2,33 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://dxwyc56u5qa1h"
+path="res://.godot/imported/normal.png-fcfca18ecefe383f859b751acba43b27.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://terrain_data/normal.png"
+dest_files=["res://.godot/imported/normal.png-fcfca18ecefe383f859b751acba43b27.ctex"]
 
 [params]
 
 compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
 compress/hdr_compression=0
 compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=false
 mipmaps/limit=0
-flags/srgb=0
+roughness/mode=0
+roughness/src_normal=""
 process/fix_alpha_border=false
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
 detect_3d/compress_to=0
-

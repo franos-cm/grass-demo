@@ -1663,3 +1663,6 @@ class HT_SetCastShadowSettingAction:
 		setting = s
 	func exec(chunk):
 		chunk.set_cast_shadow_setting(setting)
+
+func get_height(x: int, z: int) -> float:
+	return _data.get_height_at(x, z)

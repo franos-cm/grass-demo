@@ -1,7 +1,7 @@
 [gd_scene load_steps=16 format=3 uid="uid://bnmmees1htys4"]
 
 [ext_resource type="Script" uid="uid://cdv2ma2wlry3x" path="res://addons/zylann.hterrain/hterrain.gd" id="1_ic0uy"]
-[ext_resource type="Resource" path="res://terrain_data/data.hterrain" id="2_ic0uy"]
+[ext_resource type="Resource" uid="uid://dunpa0kphh1lo" path="res://terrain_data/data.hterrain" id="2_ic0uy"]
 [ext_resource type="Script" uid="uid://bkpblnqmp2iq8" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="3_2o6r5"]
 [ext_resource type="Texture2D" uid="uid://dnp4la7h614ar" path="res://terrain_textures/slot0_albedo_bump.png" id="4_70uel"]
 [ext_resource type="Texture2D" uid="uid://dbwbyqldyooes" path="res://terrain_textures/slot1_albedo_bump.png" id="5_hiqwa"]
