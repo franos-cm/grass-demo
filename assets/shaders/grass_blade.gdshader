@@ -43,7 +43,11 @@ uniform float wind_effect_tip_amplitude: hint_range(0.0, 5.0) = 1.0;
 uniform float wind_pivot_amplitude : hint_range(0.0, 1.0) = 0.6;
 group_uniforms;
 
+global uniform vec3 player_position;
+global uniform vec3 player_velocity;
+
 // Varyings
+varying vec3 world_position;
 varying vec3 debug_color;
 
 // Constants
@@ -82,7 +86,7 @@ vec2 normal_adjustment_coeff(vec2 uv) {
 	float rim = abs(u_coord_centered); // TODO: edge values seem broken
 	rim = smoothstep(rim_thickness, rim_thickness-rim_smoothness, rim);
 	float u_coeff = mix(1, -1, mix(band_inv, band, rim));
-	
+
 	// First element adjusts in TANGENT direction, second element in BINORMAL direction
 	return vec2(u_coeff, 0.0) * details_effect_strength;
 }
@@ -106,37 +110,47 @@ mat2 rotate_y(float angle) {
   return mat2(vec2(c, s), vec2(-s, c));
 }
 
-float sample_wind_strength(vec3 world_position, float rand_num) {
+float sample_wind_strength(vec3 world_pos, float rand_num) {
 	vec2 wind_direction = (vec2(wind_texture_speed_x, wind_texture_speed_y))*wind_texture_speed;
 	vec2 wind_direction_offset = normalize(vec2(sin(rand_num*PI), cos(rand_num*PI))) * wind_direction_randomness;
-	vec2 wind_base_uv = (world_position.xz + wind_direction_offset) / wind_tex_scale;
+	vec2 wind_base_uv = (world_pos.xz + wind_direction_offset) / wind_tex_scale;
 	vec2 wind_uv = panner(wind_base_uv, wind_direction, TIME); // TODO: could use more textures and average between them
 	return texture(wind_texture, wind_uv).r;
 }
 
-mat2 pivot_blade(float wind_strength, float t, mat4 inverse_model_matrix) {
-	float pivot_strength = wind_strength * wind_pivot_amplitude;
+mat2 pivot_blade(float wind_strength, vec3 player_direction_world, float crushed_factor, float t, mat4 inverse_model_matrix) {
+	float player_distance = length(player_direction_world);
+	float crushed_factor_pivot = min(pow(player_distance, 2.0)*0.50, 1.0);
+	float pivot_strength = wind_strength * wind_pivot_amplitude * 0.0;
+
 	vec3 wind_direction_world = vec3(wind_texture_speed_x, 0.0, wind_texture_speed_y);
 	vec3 wind_direction_model = normalize((inverse_model_matrix * vec4(wind_direction_world, 0.0)).xyz );
-	
+	vec2 wind_direction = -wind_direction_model.xz;
+
+	vec3 player_direction_model = normalize((inverse_model_matrix * vec4(player_direction_world, 0.0)).xyz );
+	vec2 player_direction = -player_direction_model.xz;
 	const vec2 base_blade_direction = vec2(1.0, 0.0);
-	vec2 wind_blade_direction = -(vec2(wind_direction_model.x, wind_direction_model.z));
-	
-	vec2  final_blade_direction = mix(base_blade_direction, wind_blade_direction, pivot_strength);
+
+	vec2 wind_blade_direction = mix(base_blade_direction, wind_direction, pivot_strength);
+	vec2 final_blade_direction = mix(player_direction, wind_blade_direction, crushed_factor_pivot);
+	//final_blade_direction = wind_blade_direction;
 	float pivot_angle = atan(final_blade_direction.y, final_blade_direction.x);
 
 	float pivot_length_coeff = clamp(pow(t, 2.0) + 0.05, 0.0, 1.0);
 	return rotate_y(pivot_angle * pivot_length_coeff);
 }
 
-
 void vertex() {
 	// Useful variables used throughout vertex shader
+	world_position = MODEL_MATRIX[3].xyz;
+	vec3 player_direction = player_position - world_position;
+	float player_distance = length(player_direction);
 	mat4 inverse_model_matrix = inverse_model_matrix(MODEL_MATRIX);
-	vec3 world_position = MODEL_MATRIX[3].xyz;
 	float rand_num = (hash13(world_position) - 0.5)*2.0; // [-1, 1] range
 	float t = VERTEX.x;
 	
+	float crushed_factor = min(pow(player_distance, 2.0)/3.5, 1.0);
+
 	// Define initial control points that will be used to curve the plane through a Bezier curve
 	vec2 p0 = p0_base;
 	vec2 p1 = vec2(control_x, control_y);
@@ -148,7 +162,7 @@ void vertex() {
 
 	// Wind: we create the impression of wind by changing the position
 	//       of the control points and pivoting the blade over time
-	float wind_strength = sample_wind_strength(world_position, rand_num);
+	float wind_strength = sample_wind_strength(world_position, rand_num) * crushed_factor;
 
 	// For the control point manipulation, there are two types of motion: swelling and fluttering.
 	// Primary wind motion: swell, ranging from [-grass_swell_amplitude, 0]
@@ -163,10 +177,15 @@ void vertex() {
 
 	// We update the control points with the wind influence
 	vec2 p1_wind_effect = vec2(0, grass_swell);
-	p1 += p1_wind_effect * wind_effect_base_amplitude * wind_effect_mid_amplitude;
+	//p1 += p1_wind_effect * wind_effect_base_amplitude * wind_effect_mid_amplitude;
+	p1 = max(vec2(0.0), p1);
 	vec2 p2_wind_effect = vec2(grass_swell, grass_swell+grass_flutter);
-	p2 += p2_wind_effect * wind_effect_base_amplitude * wind_effect_tip_amplitude;
+	//p2 += p2_wind_effect * wind_effect_base_amplitude * wind_effect_tip_amplitude;
+	p2 = max(vec2(0.0), p2);
+	//p2.y *= min(1.0, crushed_factor + 0.1);
+	//p1.y *= min(1.0, crushed_factor + 0.1);
 	
+
 	// Calculate the bezier curves, and deform the xy axes accordingly
 	vec2 bezier_vec = bezier(t, p0, p1, p2);
 	vec2 bezier_normal_vec = bezier_normal(t, p0, p1, p2);
@@ -174,9 +193,9 @@ void vertex() {
 	float approx_blade_length = 1.0; // (2.0*length(p2 - p0) + length(p1 - p0) + length(p2 - p1)) / 3.0;
 	VERTEX.xy = vec2(bezier_vec.x, bezier_vec.y) / approx_blade_length;
 	NORMAL.xy = vec2(bezier_normal_vec.x, bezier_normal_vec.y);
-	
+
 	// Tertiary wind motion: pivoting the blade to face the wind
-	mat2 grass_pivot = pivot_blade(wind_strength, t, inverse_model_matrix);
+	mat2 grass_pivot = pivot_blade(wind_strength, player_direction, crushed_factor, t, inverse_model_matrix);
 	VERTEX.xz  = grass_pivot * VERTEX.xz;
 	NORMAL.xz  = grass_pivot * NORMAL.xz;
 	TANGENT.xz = grass_pivot * TANGENT.xz;
@@ -200,11 +219,19 @@ void fragment() {
 	vec3 normal_adjustment_vec = TANGENT*adjustment_coeffs.x + BINORMAL*adjustment_coeffs.y;
 	NORMAL = normalize(NORMAL + normal_adjustment_vec);
 
+	float acolor;
+	float distance_to_player = distance(world_position, player_position);
+	if (distance_to_player > 10.0)
+		acolor = 0.0;
+	else
+		acolor = 1.0;
+	vec3 test_color = vec3(acolor);
+
 	// Color and texture
 	// Texture is a one pixel tall greyscale noise, that gets stretched over the length of the blade
     vec3 tex_color = texture(veins_texture, UV.yx).rgb;
 	// We change the color according to the texture
-	ALBEDO = mix(base_color, (1.0-veins_strength)*base_color, tex_color);
+	ALBEDO = player_velocity;
 	//ALBEDO = debug_color.rgb;
 
     // Lightning

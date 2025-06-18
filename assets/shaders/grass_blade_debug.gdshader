@@ -146,7 +146,7 @@ void vertex() {
 	p1 += p1_wind_effect * wind_effect_base_amplitude * wind_effect_mid_amplitude;
 	vec2 p2_wind_effect = vec2(grass_swell, grass_swell+grass_flutter);
 	p2 += p2_wind_effect * wind_effect_base_amplitude * wind_effect_tip_amplitude;
-	
+
 	// Length estimative: guarantee that deformations still maintain the same blade length
 	// At the moment, I think it makes the visuals overall worse, and at a cost to performance
 	float approx_blade_length = 1.0;
@@ -158,14 +158,14 @@ void vertex() {
 	VERTEX.xy = vec2(bezier_vec.x, bezier_vec.y);
 	NORMAL.xy = vec2(bezier_normal_vec.x, bezier_normal_vec.y);
 
-	
+
 	// Turn
 	vec3 wind_direction_world = vec3(wind_texture_speed_x, 0.0, wind_texture_speed_y);
 	vec3 wind_direction_model = normalize( (inverse_model_matrix * vec4(wind_direction_world, 0.0)).xyz );
 	const vec2 base_blade_direction = vec2(1.0, 0.0);
 
 	vec2 wind_vec = -(vec2(wind_direction_model.x, wind_direction_model.z));
-	
+
 	float pivot_strength = wind_strength * wind_pivot_amplitude;
 	vec2  blended_direction   = (mix(base_blade_direction, wind_vec, pivot_strength));
 	float pivot_angle = atan(blended_direction.y, blended_direction.x);
@@ -173,12 +173,12 @@ void vertex() {
 	float k = clamp(pow(t, 2.0) + 0.05, 0.0, 1.0);
 	float yaw = pivot_angle * k;
 	mat2 rot = rotate_y(yaw);
-	
+
 	VERTEX.xz  = rot * VERTEX.xz;
 	NORMAL.xz  = rot * NORMAL.xz;
 	TANGENT.xz = rot * TANGENT.xz;
 
-	
+
 	// View dependent thickening: twist the blade when looking at it exactly sideways
 	vec3 camera_direction_model = (inverse_model_matrix * vec4(CAMERA_DIRECTION_WORLD, 0.0)).xyz;
 	float alignment_coeff = VERTEX.z * camera_direction_model.z;

@@ -1,5 +1,6 @@
-[gd_scene load_steps=31 format=3 uid="uid://b6ipamyyvedlc"]
+[gd_scene load_steps=32 format=3 uid="uid://b6ipamyyvedlc"]
 
+[ext_resource type="Script" uid="uid://cuncvcd7xtxha" path="res://scenes/main.gd" id="1_a8y0u"]
 [ext_resource type="PackedScene" uid="uid://p7360b8bsbyr" path="res://scenes/grass_field.tscn" id="2_0wfyh"]
 [ext_resource type="Script" uid="uid://dblu4uqrna0o" path="res://assets/scripts/Player.gd" id="3_an6go"]
 [ext_resource type="Shader" uid="uid://cvd0x7lon1ur6" path="res://addons/sky_3d/shaders/SkyMaterial.gdshader" id="3_eb6dy"]
@@ -58,7 +59,7 @@ shader_parameter/background_color = Color(0.709804, 0.709804, 0.709804, 0.854902
 shader_parameter/stars_field_color = Color(1, 1, 1, 1)
 shader_parameter/stars_field_texture = ExtResource("9_dp3eg")
 shader_parameter/sky_alignment = Vector3(2.6555, -0.23935, 0.4505)
-shader_parameter/sky_rotation = -10.7429
+shader_parameter/sky_rotation = -10.8001
 shader_parameter/sky_tilt = -0.785398
 shader_parameter/stars_scintillation = 0.75
 shader_parameter/stars_scintillation_speed = 0.01
@@ -93,8 +94,8 @@ shader_parameter/cumulus_clouds_horizon_light_color = Color(0.98, 0.43, 0.15, 1)
 shader_parameter/cumulus_clouds_night_color = Color(0.090196, 0.094118, 0.129412, 1)
 shader_parameter/cumulus_clouds_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_clouds_mie_intensity = 1.0
-shader_parameter/moon_matrix = Basis(-7.45058e-09, -0.973625, 0.228154, -0.867851, 0.113353, 0.48372, -0.496824, -0.198004, -0.844962)
-shader_parameter/deep_space_matrix = Basis(0.249967, 0.968254, 2.98023e-08, 0.68466, -0.176753, -0.707106, -0.684659, 0.176753, -0.707108)
+shader_parameter/moon_matrix = Basis(7.45058e-09, -0.969814, 0.243848, -0.891329, 0.11055, 0.439671, -0.453356, -0.217349, -0.864423)
+shader_parameter/deep_space_matrix = Basis(0.194236, 0.980955, 0, 0.69364, -0.137346, -0.707106, -0.693639, 0.137345, -0.707108)
 
 [sub_resource type="Sky" id="Sky_trceg"]
 sky_material = SubResource("ShaderMaterial_eb6dy")
@@ -103,7 +104,7 @@ sky_material = SubResource("ShaderMaterial_eb6dy")
 background_mode = 2
 sky = SubResource("Sky_trceg")
 ambient_light_source = 3
-ambient_light_color = Color(0.703128, 0.579143, 0.517016, 1)
+ambient_light_color = Color(0.71876, 0.602224, 0.543829, 1)
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_white = 6.0
@@ -160,6 +161,7 @@ turbulence_noise_strength = 0.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pm3ni"]
 transparency = 1
+cull_mode = 2
 vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("13_trceg")
 billboard_mode = 3
@@ -172,22 +174,24 @@ particles_anim_loop = false
 material = SubResource("StandardMaterial3D_pm3ni")
 
 [node name="Main" type="Node3D"]
+script = ExtResource("1_a8y0u")
 
-[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+[node name="Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.30887, 0, 5.12844)
 script = ExtResource("3_an6go")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.77977, 0)
 mesh = SubResource("CapsuleMesh_k5kfe")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.77977, 0)
 shape = SubResource("ConvexPolygonShape3D_an6go")
 
-[node name="Neck" type="Node3D" parent="CharacterBody3D"]
+[node name="Neck" type="Node3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.38436, 0)
 
-[node name="Camera3D" type="Camera3D" parent="CharacterBody3D/Neck"]
+[node name="Camera3D" type="Camera3D" parent="Player/Neck"]
 transform = Transform3D(0.472105, 0, -0.881543, 0, 1, 0, 0.881543, 0, 0.472105, 0, 1.8335, 0)
 
 [node name="GrassField" parent="." instance=ExtResource("2_0wfyh")]
@@ -199,36 +203,38 @@ transform = Transform3D(0.630107, 0, -0.776509, 0, 1, 0, 0.776509, 0, 0.630107, 
 environment = SubResource("Environment_a8y0u")
 camera_attributes = SubResource("CameraAttributesPractical_jkv2x")
 script = ExtResource("10_0ld40")
-current_time = 10.1231
+current_time = 10.3409
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
 [node name="TimeOfDay" type="Node" parent="Sky3D"]
 script = ExtResource("12_yc10j")
+update_in_editor = false
 dome_path = NodePath("../Skydome")
-total_hours = 10.1231
+total_hours = 10.3409
 day = 2
 latitude = 45.0
 
 [node name="Skydome" type="Node" parent="Sky3D"]
 script = ExtResource("11_gqmmt")
 exposure = 0.8
-sun_azimuth = -154.913
-sun_altitude = -72.0279
-moon_azimuth = -329.545
-moon_altitude = -101.42
+sun_azimuth = -157.927
+sun_altitude = -71.1035
+moon_azimuth = -332.325
+moon_altitude = -102.553
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D"]
-transform = Transform3D(0, -0.915062, 0.403313, 0.941435, 0.135995, 0.308554, -0.337194, 0.379693, 0.861472, 0.403313, 0.308554, 0.861472)
-light_color = Color(0.992342, 0.81736, 0.729678, 1)
+transform = Transform3D(0, -0.93466, 0.355542, 0.938051, 0.123194, 0.323857, -0.346497, 0.333517, 0.876759, 0.355542, 0.323857, 0.876759)
+light_color = Color(0.992954, 0.831962, 0.75129, 1)
 shadow_enabled = true
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D"]
-transform = Transform3D(0, -0.867851, -0.496824, -0.973625, 0.113353, -0.198004, 0.228154, 0.48372, -0.844962, -0.496824, -0.198004, -0.844962)
+transform = Transform3D(0, -0.891329, -0.453357, -0.969814, 0.11055, -0.217348, 0.243848, 0.439671, -0.864423, -0.453357, -0.217348, -0.864423)
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 light_specular = 2.5
 
 [node name="Particles" type="Node3D" parent="."]
+visible = false
 
 [node name="Fireflies" type="GPUParticles3D" parent="Particles"]
 amount = 512
