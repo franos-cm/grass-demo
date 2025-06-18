@@ -1,16 +1,16 @@
 [gd_scene load_steps=16 format=3 uid="uid://bnmmees1htys4"]
 
 [ext_resource type="Script" uid="uid://cdv2ma2wlry3x" path="res://addons/zylann.hterrain/hterrain.gd" id="1_ic0uy"]
-[ext_resource type="Resource" path="res://t_data/data.hterrain" id="2_k3n1d"]
+[ext_resource type="Resource" path="res://terrain_data/data.hterrain" id="2_ic0uy"]
 [ext_resource type="Script" uid="uid://bkpblnqmp2iq8" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="3_2o6r5"]
-[ext_resource type="Texture2D" uid="uid://eyasxobv2r3q" path="res://terrain_textures/slot0_albedo_bump.png" id="4_70uel"]
-[ext_resource type="Texture2D" uid="uid://6x3kbo8i24ui" path="res://terrain_textures/slot1_albedo_bump.png" id="5_hiqwa"]
-[ext_resource type="Texture2D" uid="uid://bwjjsom2uoch" path="res://terrain_textures/slot2_albedo_bump.png" id="6_2u3nc"]
-[ext_resource type="Texture2D" uid="uid://hirl8b2dkxut" path="res://terrain_textures/slot3_albedo_bump.png" id="7_udxuc"]
-[ext_resource type="Texture2D" uid="uid://c46ibg77x6tn1" path="res://terrain_textures/slot0_normal_roughness.png" id="8_ikiii"]
-[ext_resource type="Texture2D" uid="uid://dvmw2yxkatkjl" path="res://terrain_textures/slot1_normal_roughness.png" id="9_cbp6q"]
-[ext_resource type="Texture2D" uid="uid://bhjsrsopv6d58" path="res://terrain_textures/slot2_normal_roughness.png" id="10_26xuy"]
-[ext_resource type="Texture2D" uid="uid://c4741qwtb4ika" path="res://terrain_textures/slot3_normal_roughness.png" id="11_bc84e"]
+[ext_resource type="Texture2D" uid="uid://dnp4la7h614ar" path="res://terrain_textures/slot0_albedo_bump.png" id="4_70uel"]
+[ext_resource type="Texture2D" uid="uid://dbwbyqldyooes" path="res://terrain_textures/slot1_albedo_bump.png" id="5_hiqwa"]
+[ext_resource type="Texture2D" uid="uid://boav5m8u5fem8" path="res://terrain_textures/slot2_albedo_bump.png" id="6_2u3nc"]
+[ext_resource type="Texture2D" uid="uid://dt0a0f76qxvak" path="res://terrain_textures/slot3_albedo_bump.png" id="7_udxuc"]
+[ext_resource type="Texture2D" uid="uid://8yx7gs7xkbnf" path="res://terrain_textures/slot0_normal_roughness.png" id="8_ikiii"]
+[ext_resource type="Texture2D" uid="uid://degufkc623v7c" path="res://terrain_textures/slot1_normal_roughness.png" id="9_cbp6q"]
+[ext_resource type="Texture2D" uid="uid://qeuluu6xrm7k" path="res://terrain_textures/slot2_normal_roughness.png" id="10_26xuy"]
+[ext_resource type="Texture2D" uid="uid://b0pe3ajmdrf73" path="res://textures_raw/Rock028_1K-JPG/Rock028_1K-JPG_NormalGL.jpg" id="11_k3n1d"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wukud"]
 
@@ -22,10 +22,10 @@ background_mode = 2
 sky = SubResource("Sky_il2jm")
 tonemap_mode = 3
 
-[sub_resource type="Resource" id="Resource_mc2jv"]
+[sub_resource type="Resource" id="Resource_2o6r5"]
 script = ExtResource("3_2o6r5")
 mode = 0
-textures = [[ExtResource("4_70uel"), ExtResource("5_hiqwa"), ExtResource("6_2u3nc"), ExtResource("7_udxuc")], [ExtResource("8_ikiii"), ExtResource("9_cbp6q"), ExtResource("10_26xuy"), ExtResource("11_bc84e")]]
+textures = [[ExtResource("4_70uel"), ExtResource("5_hiqwa"), ExtResource("6_2u3nc"), ExtResource("7_udxuc")], [ExtResource("8_ikiii"), ExtResource("9_cbp6q"), ExtResource("10_26xuy"), ExtResource("11_k3n1d")]]
 
 [node name="World" type="Node3D"]
 
@@ -38,22 +38,19 @@ environment = SubResource("Environment_wjb0r")
 
 [node name="HTerrain" type="Node3D" parent="."]
 script = ExtResource("1_ic0uy")
-_terrain_data = ExtResource("2_k3n1d")
+_terrain_data = ExtResource("2_ic0uy")
 chunk_size = 32
 collision_enabled = true
 collision_layer = 1
 collision_mask = 1
-shader_type = "Classic4"
+shader_type = "Classic4Lite"
 custom_shader = null
 custom_globalmap_shader = null
-texture_set = SubResource("Resource_mc2jv")
+texture_set = SubResource("Resource_2o6r5")
 render_layers = 1
 cast_shadow = 1
-shader_params/u_ground_uv_scale_per_texture = null
+shader_params/u_ground_uv_scale = 20
 shader_params/u_depth_blending = true
 shader_params/u_triplanar = null
 shader_params/u_tile_reduction = Vector4(1, 1, 1, 1)
-shader_params/u_globalmap_blend_start = null
-shader_params/u_globalmap_blend_distance = null
-shader_params/u_colormap_opacity_per_texture = Vector4(1, 0, 0, 0)
 metadata/_custom_type_script = "uid://cdv2ma2wlry3x"
