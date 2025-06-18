@@ -1,62 +1,94 @@
 @tool
 extends GeometryInstance3D
 
-@export var density: float = 0.2
-@export var high_definition_radius: float = 25.0
-@export var medium_definition_radius: float = 500.0 
+@export var high_density: float = 0.2
+@export var high_quality: int = 8
+@export var player: Node3D
+@export var chunks_number: int = 1
+@export var chunk_size: float = 50
 
-const big_number = 1000
+class Chunk:
+	var index: Vector2i
+	var quality: float
+	var density: float
+	var mmi: MultiMeshInstance3D
+	var mesh: PlaneMesh
+	
+	static func new_with(index: Vector2i, mmi: MultiMeshInstance3D, mesh: PlaneMesh, quality:int, density:float) -> Chunk:
+		var c = Chunk.new()
+		c.index = index
+		c.mmi = mmi
+		c.mesh = mesh
+		c.quality = quality
+		c.density = density
+		return c
+
+var chunks: Array[Chunk]
+
 func _ready():
-	var high = new_mesh(16, estimate_number_of_instances_in_the_circle(high_definition_radius/density))
-	var high_count = 0
-	var medium = new_mesh(8, estimate_number_of_instances_in_the_circle(high_definition_radius/density))
-	var medium_count = 0;
-	var low = new_mesh(2, big_number*big_number)
-	var low_count = 0;
+	for i in range(-chunks_number, chunks_number):
+		for j in range(-chunks_number, chunks_number):
+			var chunk = instance_chunk(Vector2i(i, j))
+			maybe_fill_chunk(chunk, player.global_position)
+			chunks.push_back(chunk)
 
-	for i in range(big_number*big_number):
-		var x = (i/big_number - big_number/2)*density
-		var y = (i%big_number - big_number/2)*density
-		var offset = Vector2(x, y)
-		var t = Transform3D(Basis(), Vector3(offset.x, 0, offset.y))
-		
-		var distance = offset.distance_squared_to(Vector2(0, 0));
-		if distance < high_definition_radius: 
-			high.multimesh.set_instance_transform(high_count, t)
-			high_count += 1
-		elif distance < medium_definition_radius:
-			medium.multimesh.set_instance_transform(medium_count, t)
-			medium_count += 1
-		else:
-			low.multimesh.set_instance_transform(low_count, t)
-			low_count += 1
-	
-	high.multimesh.visible_instance_count = high_count
-	medium.multimesh.visible_instance_count = medium_count
-	low.multimesh.visible_instance_count = low_count
-	
-	add_child(high)
-	add_child(medium)
-	add_child(low)
-#
-#func _process(delta: float) -> void:
-	#var fps = Engine.get_frames_per_second()
-	#print("fps: ", fps)
-	
-func new_mesh(subdivision_with: int, instance_count: int) -> MultiMeshInstance3D:
+func instance_chunk(index: Vector2i) -> Chunk:
 	var mmi = MultiMeshInstance3D.new()
 	mmi.multimesh = MultiMesh.new()
 	mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
-	mmi.multimesh.instance_count = instance_count
+	mmi.top_level = true # only absolute position
+	mmi.multimesh.instance_count = 0
 	
 	var mesh = PlaneMesh.new()
 	mesh.center_offset = Vector3(0.5, 0.0, 0.0)
 	mesh.size = Vector2(1.0, 1.0)
-	mesh.subdivide_width = subdivision_with
 	mesh.material = preload("res://assets/materials/grass_blade.tres")
 	
 	mmi.multimesh.mesh = mesh
-	return mmi
+	add_child(mmi)
+	
+	return Chunk.new_with(index, mmi, mesh, -1, -1)
+	
+func maybe_fill_chunk(chunk: Chunk, player_position: Vector3):
+	var chunk_center: Vector2 = Vector2(chunk.index) + Vector2(chunk_size/2, chunk_size/2)
+	var distance: float = player_position.distance_to(Vector3(chunk_center.x, 0, chunk_center.x))
+	
+	var quality: int = high_quality;
+	var density: float = high_density;
+	if distance < chunk_size:
+		quality /= 1
+		density /= 1
+	elif distance < chunk_size*4:
+		quality /= 2
+		density /= 2
+	else:
+		quality /= 4
+		density /= 4
+	
+	if chunk.density == density and chunk.quality == quality:
+		# same, no need to change
+		return
+		
+	print("drawing ", chunk.index)
+	
+	var count_side: int = ceil(chunk_size/density)
+	chunk.mmi.multimesh.instance_count = count_side*count_side
+	chunk.mesh.subdivide_width = quality
 
-func estimate_number_of_instances_in_the_circle(radius: float) -> int:
-	return ceil(radius * radius * PI)
+	
+	for i in range(0, count_side):
+		for j in range(0, count_side):
+			var x = i*density + chunk_size*chunk.index.x + randf_range(-density, density)
+			var z = j*density + chunk_size*chunk.index.y + randf_range(-density, density)
+			var rotation = Basis().rotated(Vector3.UP, randf() * TAU)
+			var t = Transform3D(rotation, Vector3(x, 0, z))
+			chunk.mmi.multimesh.set_instance_transform(i*count_side+j, t)
+	
+	chunk.density = density
+	chunk.quality = quality
+	
+
+func _process(_delta: float) -> void:
+	for chunk in chunks:
+		maybe_fill_chunk(chunk, player.global_position)
+	#print("fps: ", Engine.get_frames_per_second())
