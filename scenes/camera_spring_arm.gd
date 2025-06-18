@@ -4,8 +4,8 @@ extends Node3D
 @export_range(-90.0, 0.0, 0.1, "radians_as_degrees") var min_vertical_angle: float = -PI/2
 @export_range(0.0, 90.0, 0.1, "radians_as_degrees") var max_vertical_angle: float = PI/4
 
-@export var min_spring_length: float = 1.0
-@export var max_spring_length: float = 10.0
+@export var min_spring_length: float = 1.3
+@export var max_spring_length: float = 6.5
 
 @onready var spring_arm := $SpringArm3D
 
