@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://bnmmees1htys4"]
+[gd_scene load_steps=20 format=3 uid="uid://bnmmees1htys4"]
 
 [ext_resource type="Script" uid="uid://cdv2ma2wlry3x" path="res://addons/zylann.hterrain/hterrain.gd" id="1_ic0uy"]
 [ext_resource type="Resource" uid="uid://dunpa0kphh1lo" path="res://terrain_data/data.hterrain" id="2_ic0uy"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://byx5fwvd0r3eu" path="res://scripts/grass_spawner.gd" id="12_k3n1d"]
 [ext_resource type="PackedScene" uid="uid://fh42rc4l5e68" path="res://grass.tscn" id="13_2o6r5"]
 [ext_resource type="Script" uid="uid://d1vw735ki0p2k" path="res://scripts/camera_3d.gd" id="14_70uel"]
+[ext_resource type="Texture2D" uid="uid://bmtbj46io4jeh" path="res://terrain_data/splat.png" id="14_hiqwa"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wukud"]
 
@@ -62,6 +63,7 @@ metadata/_custom_type_script = "uid://cdv2ma2wlry3x"
 script = ExtResource("12_k3n1d")
 hterrain = NodePath("../HTerrain")
 grass_scene = ExtResource("13_2o6r5")
+splat_texture = ExtResource("14_hiqwa")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1024, 220.673, 1024)

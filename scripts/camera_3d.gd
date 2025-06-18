@@ -1,7 +1,7 @@
 extends Camera3D
 
 @export var mouse_sensitivity := 0.1
-@export var speed := 10.0
+@export var speed := 100.0
 
 var rotation_x := 0.0  # Rotação no eixo vertical (pitch)
 var rotation_y := 0.0  # Rotação no eixo horizontal (yaw)
