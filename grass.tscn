@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://fh42rc4l5e68"]
+
+[ext_resource type="Texture2D" uid="uid://deef7x6600k8u" path="res://textures/grass.png" id="1_kl2qe"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mw2ei"]
+transparency = 2
+alpha_scissor_threshold = 0.3
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("1_kl2qe")
+
+[sub_resource type="QuadMesh" id="QuadMesh_2qnaq"]
+
+[node name="Grass" type="Node3D"]
+
+[node name="GrassMesh" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_mw2ei")
+mesh = SubResource("QuadMesh_2qnaq")

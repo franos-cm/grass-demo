@@ -1,11 +1,11 @@
 ea4bc82a6ad023ab7ee23ee620429895
-::res://::1750214705
+::res://::1750215204
 export_presets.cfg::TextFile/TextFile::-1::1750210096::0::1::::<><><>0<>0<><>::
 icon.svg::CompressedTexture2D/CompressedTexture2D::5346448880102891394::1750210076::1750210096::1::::<><><>0<>0<>abb74af6183e8d6eade5ff03424d4f84<>res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex::
-world.tscn::PackedScene::3324384170216387113::1750214705::0::1::::<><><>0<>0<><>::uid://cdv2ma2wlry3x::::res://addons/zylann.hterrain/hterrain.gd<>res://terrain_data/data.hterrain<>uid://bkpblnqmp2iq8::::res://addons/zylann.hterrain/hterrain_texture_set.gd<>uid://dnp4la7h614ar::::res://terrain_textures/slot0_albedo_bump.png<>uid://dbwbyqldyooes::::res://terrain_textures/slot1_albedo_bump.png<>uid://boav5m8u5fem8::::res://terrain_textures/slot2_albedo_bump.png<>uid://dt0a0f76qxvak::::res://terrain_textures/slot3_albedo_bump.png<>uid://8yx7gs7xkbnf::::res://terrain_textures/slot0_normal_roughness.png<>uid://degufkc623v7c::::res://terrain_textures/slot1_normal_roughness.png<>uid://qeuluu6xrm7k::::res://terrain_textures/slot2_normal_roughness.png<>uid://b0pe3ajmdrf73::::res://textures_raw/Rock028_1K-JPG/Rock028_1K-JPG_NormalGL.jpg
+world.tscn::PackedScene::3324384170216387113::1750214817::0::1::::<><><>0<>0<><>::uid://cdv2ma2wlry3x::::res://addons/zylann.hterrain/hterrain.gd<>uid://dunpa0kphh1lo::::res://terrain_data/data.hterrain<>uid://bkpblnqmp2iq8::::res://addons/zylann.hterrain/hterrain_texture_set.gd<>uid://dnp4la7h614ar::::res://terrain_textures/slot0_albedo_bump.png<>uid://dbwbyqldyooes::::res://terrain_textures/slot1_albedo_bump.png<>uid://boav5m8u5fem8::::res://terrain_textures/slot2_albedo_bump.png<>uid://dt0a0f76qxvak::::res://terrain_textures/slot3_albedo_bump.png<>uid://8yx7gs7xkbnf::::res://terrain_textures/slot0_normal_roughness.png<>uid://degufkc623v7c::::res://terrain_textures/slot1_normal_roughness.png<>uid://qeuluu6xrm7k::::res://terrain_textures/slot2_normal_roughness.png<>uid://b0pe3ajmdrf73::::res://textures_raw/Rock028_1K-JPG/Rock028_1K-JPG_NormalGL.jpg
 ::res://addons/::1750210095
-::res://addons/zylann.hterrain/::1750210096
-hterrain.gd::GDScript/GDScript::5028420662191802983::1750210095::0::1::::<>Node3D<><>0<>1<><>::
+::res://addons/zylann.hterrain/::1750214817
+hterrain.gd::GDScript::5028420662191802983::1750214817::0::1::::<>Node3D<><>0<>1<><>::
 hterrain_chunk.gd::GDScript/GDScript::318766553991255152::1750210095::0::1::::<>RefCounted<><>0<>1<><>::
 hterrain_chunk_debug.gd::GDScript/GDScript::3037573946114207902::1750210095::0::1::::<><><>0<>1<><>::
 hterrain_collider.gd::GDScript/GDScript::1366644130018201033::1750210095::0::1::::<>RefCounted<><>0<>1<><>::
@@ -206,7 +206,7 @@ image_file_cache.gd::GDScript/GDScript::1674538143049126528::1750210096::0::1:::
 logger.gd::GDScript/GDScript::770824956725739771::1750210096::0::1::::<>RefCounted<><>0<>1<><>::
 util.gd::GDScript/GDScript::1957718344680326365::1750210096::0::1::::<>RefCounted<><>0<>1<><>::
 xyz_format.gd::GDScript/GDScript::7600816376468695478::1750210096::0::1::::<>RefCounted<><>0<>1<><>::
-::res://terrain_data/::1750214708
+::res://terrain_data/::1750214738
 color.png::CompressedTexture2D::7908294464145935951::1750214708::1750214736::1::::<><><>0<>0<>7aa955607b074652973b803b43e8360b<>res://.godot/imported/color.png-476f3fe20462bb236baa74569719114e.ctex::
 height.res::Image::4572461014444037420::1750214705::0::1::::<><><>0<>0<><>::
 data.hterrain::Resource::8590787918757213940::1750214705::0::1::::<><><>0<>0<><>::
@@ -221,6 +221,8 @@ slot2_albedo_bump.png::CompressedTexture2D/CompressedTexture2D::3370393807498544
 slot2_normal_roughness.png::CompressedTexture2D/CompressedTexture2D::1132514075616048594::1750210927::1750210928::1::::<><><>0<>0<>a9f35e7925401d843808747a3a0e008a<>res://.godot/imported/slot2_normal_roughness.png-6322dd805537c2bc59eb2e16239e9b1d.s3tc.ctex::
 slot3_albedo_bump.png::CompressedTexture2D/CompressedTexture2D::8544504482382335094::1750210926::1750210929::1::::<><><>0<>0<>a689eec6f7f81dd825f0553c5228d8f4<>res://.godot/imported/slot3_albedo_bump.png-a198e90c2201a17c290bf7a576075634.s3tc.ctex::
 slot3_normal_roughness.png::CompressedTexture2D/CompressedTexture2D::5274622903901387104::1750210927::1750210929::1::::<><><>0<>0<>10b22b2a7830351c1c8b36c20df1da3f<>res://.godot/imported/slot3_normal_roughness.png-98d95e83ca1b638294870f70e01cd649.s3tc.ctex::
+::res://textures/::1750215213
+grass.png::CompressedTexture2D::7448636924385352854::1750215212::1750215425::1::::<><><>0<>0<>ff5b547a11d00069679cc5c5ef4067b5<>res://.godot/imported/grass.png-c637977c146fec1b1e97e5c999cb4594.s3tc.ctex::
 ::res://textures_raw/::1750210096
 ::res://textures_raw/Ground037_2K-JPG/::1750210096
 Ground037.png::CompressedTexture2D/CompressedTexture2D::5708514772250222030::1750210096::1750210096::1::::<><><>0<>0<>dcaafff9b8ef04a4e924539845371593<>res://.godot/imported/Ground037.png-957332fcffddb66225034ad2878bc537.ctex::
