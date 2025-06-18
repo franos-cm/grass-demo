@@ -1,6 +1,8 @@
 Camera3D
 Node3D
 MeshInstance3D
+CollisionShape3D
+CharacterBody3D
 HTerrain
 WorldEnvironment
 DirectionalLight3D
