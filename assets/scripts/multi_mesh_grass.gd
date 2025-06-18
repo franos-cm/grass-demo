@@ -2,10 +2,10 @@
 extends GeometryInstance3D
 
 @export var high_density: float = 0.2
-@export var high_quality: int = 4
+@export var high_quality: int = 8
 @export var player: Node3D
 @export var chunks_number: int = 1
-@export var chunk_size: float = 100
+@export var chunk_size: float = 50
 
 class Chunk:
 	var index: Vector2i
