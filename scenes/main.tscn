@@ -38,7 +38,7 @@ shader_parameter/atm_darkness = 0.5
 shader_parameter/atm_sun_intensity = 18.0
 shader_parameter/atm_day_tint = Color(0.807843, 0.909804, 1, 1)
 shader_parameter/atm_horizon_light_tint = Color(0.980392, 0.635294, 0.462745, 1)
-shader_parameter/atm_night_tint = Color(0.0524342, 0.0621895, 0.0780416, 0.310948)
+shader_parameter/atm_night_tint = Color(0, 0, 0, 0)
 shader_parameter/atm_level_params = Vector3(1, 0, 0)
 shader_parameter/atm_thickness = 0.7
 shader_parameter/atm_beta_ray = Vector3(5.80454e-06, 1.35629e-05, 3.31126e-05)
@@ -63,7 +63,7 @@ shader_parameter/background_color = Color(0.709804, 0.709804, 0.709804, 0.854902
 shader_parameter/stars_field_color = Color(1, 1, 1, 1)
 shader_parameter/stars_field_texture = ExtResource("9_dp3eg")
 shader_parameter/sky_alignment = Vector3(2.6555, -0.23935, 0.4505)
-shader_parameter/sky_rotation = -12.5037
+shader_parameter/sky_rotation = -11.8198
 shader_parameter/sky_tilt = -0.785398
 shader_parameter/stars_scintillation = 0.75
 shader_parameter/stars_scintillation_speed = 0.01
@@ -98,8 +98,8 @@ shader_parameter/cumulus_clouds_horizon_light_color = Color(0.98, 0.43, 0.15, 1)
 shader_parameter/cumulus_clouds_night_color = Color(0.090196, 0.094118, 0.129412, 1)
 shader_parameter/cumulus_clouds_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_clouds_mie_intensity = 1.0
-shader_parameter/moon_matrix = Basis(1.49012e-08, -0.681379, -0.73193, -0.477356, 0.643154, -0.598735, 0.87871, 0.349391, -0.32526)
-shader_parameter/deep_space_matrix = Basis(-0.998037, 0.0626287, 1.86265e-09, 0.0442852, 0.705719, -0.707106, -0.0442851, -0.705718, -0.707108)
+shader_parameter/moon_matrix = Basis(-7.45058e-09, -0.976511, 0.215469, -0.870733, -0.105958, -0.480204, 0.491755, -0.187616, -0.850281)
+shader_parameter/deep_space_matrix = Basis(-0.734043, 0.679103, -1.49012e-08, 0.480199, 0.519047, -0.707106, -0.480198, -0.519046, -0.707107)
 
 [sub_resource type="Sky" id="Sky_trceg"]
 sky_material = SubResource("ShaderMaterial_eb6dy")
@@ -108,8 +108,7 @@ sky_material = SubResource("ShaderMaterial_eb6dy")
 background_mode = 2
 sky = SubResource("Sky_trceg")
 ambient_light_source = 3
-ambient_light_color = Color(0.413306, 0.241469, 0.162061, 1)
-ambient_light_sky_contribution = 0.7
+ambient_light_color = Color(0.713596, 0.594553, 0.534901, 1)
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_white = 6.0
@@ -180,6 +179,7 @@ material = SubResource("StandardMaterial3D_pm3ni")
 [node name="Main" type="Node3D"]
 
 [node name="Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 2.4, 0, -1.1, 0)
 script = ExtResource("3_an6go")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
@@ -212,32 +212,31 @@ lerp_power = 6.0
 environment = SubResource("Environment_a8y0u")
 camera_attributes = SubResource("CameraAttributesPractical_jkv2x")
 script = ExtResource("10_0ld40")
-current_time = 16.3717
+current_time = 13.7011
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
 [node name="TimeOfDay" type="Node" parent="Sky3D"]
 script = ExtResource("12_yc10j")
 dome_path = NodePath("../Skydome")
-total_hours = 16.3717
-day = 9
+total_hours = 13.7011
+day = 10
 latitude = 45.0
 
 [node name="Skydome" type="Node" parent="Sky3D"]
 script = ExtResource("11_gqmmt")
 exposure = 0.8
-sun_azimuth = -238.393
-sun_altitude = -90.6272
-moon_azimuth = -69.6876
-moon_altitude = -69.5499
+sun_azimuth = -206.123
+sun_altitude = -71.4093
+moon_azimuth = -30.0427
+moon_altitude = -100.814
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D"]
-transform = Transform3D(0, -0.52417, -0.851614, 0.999782, 0.0177865, -0.0109476, 0.0208856, -0.851428, 0.524055, -0.851614, -0.0109476, 0.524055)
-light_color = Color(0.98, 0.523, 0.294, 1)
-light_energy = 0.22631
+transform = Transform3D(0, -0.908754, -0.417333, 0.936444, -0.146407, 0.318805, -0.350816, -0.390809, 0.850997, -0.417333, 0.318805, 0.850997)
+light_color = Color(0.992752, 0.82714, 0.744153, 1)
 shadow_enabled = true
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D"]
-transform = Transform3D(0, -0.477356, 0.87871, -0.681379, 0.643155, 0.349391, -0.73193, -0.598735, -0.325261, 0.87871, 0.349391, -0.325261)
+transform = Transform3D(0, -0.870733, 0.491755, -0.976511, -0.105958, -0.187616, 0.215469, -0.480204, -0.850281, 0.491755, -0.187616, -0.850281)
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 light_specular = 2.5
