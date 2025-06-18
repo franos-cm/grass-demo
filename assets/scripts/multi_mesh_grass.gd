@@ -2,9 +2,9 @@
 extends GeometryInstance3D
 
 @export var high_density: float = 0.2
-@export var high_quality: int = 8
+@export var high_quality: int = 4
 @export var player: Node3D
-@export var chunks_number: int = 2
+@export var chunks_number: int = 1
 @export var chunk_size: float = 100
 
 class Chunk:
@@ -36,6 +36,7 @@ func instance_chunk(index: Vector2i) -> Chunk:
 	var mmi = MultiMeshInstance3D.new()
 	mmi.multimesh = MultiMesh.new()
 	mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	mmi.top_level = true # only absolute position
 	mmi.multimesh.instance_count = 0
 	
 	var mesh = PlaneMesh.new()
@@ -75,14 +76,14 @@ func maybe_fill_chunk(chunk: Chunk, player_position: Vector3):
 	
 	for i in range(0, count_side):
 		for j in range(0, count_side):
-			var x = i*density + chunk_size*chunk.index.x
-			var z = j*density + chunk_size*chunk.index.y
-			var t = Transform3D(Basis(), Vector3(x, 0, z))
+			var x = i*density + chunk_size*chunk.index.x + randf_range(-density, density)
+			var z = j*density + chunk_size*chunk.index.y + randf_range(-density, density)
+			var rotation = Basis().rotated(Vector3.UP, randf() * TAU)
+			var t = Transform3D(rotation, Vector3(x, 0, z))
 			chunk.mmi.multimesh.set_instance_transform(i*count_side+j, t)
 	
-	pass
-	
-##
+
 #func _process(_delta: float) -> void:
-	#var fps = Engine.get_frames_per_second()
-	#print("fps: ", fps)
+	#for chunk in chunks:
+		#maybe_fill_chunk(chunk, player.global_position)
+	#print("fps: ", Engine.get_frames_per_second())
