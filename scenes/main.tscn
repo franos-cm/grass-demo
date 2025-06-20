@@ -1,8 +1,10 @@
 [gd_scene load_steps=38 format=3 uid="uid://b6ipamyyvedlc"]
 
 [ext_resource type="Script" uid="uid://bspet6c8rm8fj" path="res://assets/scripts/main.gd" id="1_0ld40"]
+[ext_resource type="PackedScene" uid="uid://dl71pfpibsvu6" path="res://scenes/terrain_collision_shape.tscn" id="2_0ld40"]
 [ext_resource type="PackedScene" uid="uid://p7360b8bsbyr" path="res://scenes/grass_field.tscn" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://cy36aygvs66pn" path="res://addons/gdquest_gobot/gobot_skin.tscn" id="2_a8y0u"]
+[ext_resource type="PackedScene" uid="uid://dl5vy8cv7ftwk" path="res://scenes/terrain_mesh.tscn" id="2_dp3eg"]
 [ext_resource type="Script" uid="uid://dblu4uqrna0o" path="res://assets/scripts/Player.gd" id="3_an6go"]
 [ext_resource type="Shader" uid="uid://cvd0x7lon1ur6" path="res://addons/sky_3d/shaders/SkyMaterial.gdshader" id="3_eb6dy"]
 [ext_resource type="Script" uid="uid://cwaiodejkc1gf" path="res://assets/scripts/camera_spring_arm.gd" id="3_jkv2x"]
@@ -185,6 +187,14 @@ point_count = 3
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_0ld40")
+
+[node name="Terrain" type="StaticBody3D" parent="."]
+
+[node name="TerrainCollisionShape" parent="Terrain" node_paths=PackedStringArray("player") instance=ExtResource("2_0ld40")]
+player = NodePath("../../Player")
+
+[node name="TerrainMesh" parent="Terrain" node_paths=PackedStringArray("player") instance=ExtResource("2_dp3eg")]
+player = NodePath("../../Player")
 
 [node name="Player" type="CharacterBody3D" parent="."]
 transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 2.4, -1.09638, 0, 3.9327)

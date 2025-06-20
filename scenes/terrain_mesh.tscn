@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://dl5vy8cv7ftwk"]
+
+[ext_resource type="Shader" uid="uid://1f1i3gnfy00w" path="res://assets/shaders/terrain.gdshader" id="1_b0j75"]
+[ext_resource type="Script" uid="uid://hb7v0ufv0yiu" path="res://assets/scripts/terrain_mesh.gd" id="1_oqplg"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0ld40"]
+render_priority = 0
+shader = ExtResource("1_b0j75")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_gqmmt"]
+size = Vector2(512, 512)
+subdivide_width = 511
+subdivide_depth = 511
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_oqplg")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0692596, 0.592392, 0.181381)
+material_override = SubResource("ShaderMaterial_0ld40")
+mesh = SubResource("PlaneMesh_gqmmt")
+skeleton = NodePath("../..")
