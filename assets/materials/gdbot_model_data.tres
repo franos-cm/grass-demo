@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://addons/gdquest_model_viewer_3d/viewer/option_list_data_builder.gd" id="1_qi7lk"]
 [ext_resource type="Script" path="res://addons/gdquest_model_viewer_3d/viewer/model_data_builder.gd" id="2_mcau0"]
-[ext_resource type="Texture2D" uid="uid://bxkudy6pdo2f1" path="res://resources/gdbot_vignette.png" id="3_0e4oe"]
+[ext_resource type="Texture2D" uid="uid://bxkudy6pdo2f1" path="res://assets/materials/gdbot_vignette.png" id="3_0e4oe"]
 
 [sub_resource type="Resource" id="Resource_00o35"]
 script = ExtResource("1_qi7lk")

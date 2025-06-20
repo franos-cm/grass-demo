@@ -7,12 +7,13 @@ uniform float control_x : hint_range(-1.0, 1.0) = 0.25;
 uniform float control_y : hint_range(-2.0, 2.0) = 0.75;
 uniform float base_width: hint_range(0.0, 1.0) = 0.7;
 uniform float middle_width: hint_range(0.0, 1.0) = 0.135;
-uniform float side_thickness: hint_range(0.0, 2.0) = 1.0;
+uniform float side_thickness: hint_range(0.0, 10.0) = 4.0;
 group_uniforms;
 
 // Lighting/aesthetical params
 group_uniforms Lighting;
-uniform vec3 base_color: source_color = vec3(0.55, 0.63, 0.24);
+uniform vec3 base_color: source_color = vec3(0.46, 0.53, 0.2);
+uniform vec3 tip_color: source_color = vec3(0.76, 0.87, 0.33);
 uniform float details_effect_strength: hint_range(0.0, 0.6) = 0.1;
 uniform float ridge_smoothness: hint_range(0.0, 0.3) = 0.03;
 uniform float rim_thickness: hint_range(0.3, 0.5) = 0.49;
@@ -30,8 +31,8 @@ group_uniforms Wind;
 uniform sampler2D wind_texture;
 uniform float wind_tex_scale: hint_range(1.0, 500.0) = 75.0;
 uniform float wind_direction_randomness: hint_range(0.0, 10.0) = 1.5;
-uniform float wind_texture_speed_x: hint_range(-1.0, 1.0) = -0.2;
-uniform float wind_texture_speed_y: hint_range(-1.0, 1.0) = -0.04;
+uniform float wind_texture_speed_x: hint_range(-1.0, 1.0) = 0.15;
+uniform float wind_texture_speed_y: hint_range(-1.0, 1.0) = -0.08;
 uniform float wind_texture_speed: hint_range(0.0, 10.0) = 0.4;
 uniform float grass_swell_amplitude: hint_range(0.0, 1.0) = 0.5;
 uniform float flutter_frequency: hint_range(0.0, 10.0) = 2.0;
@@ -43,7 +44,14 @@ uniform float wind_effect_tip_amplitude: hint_range(0.0, 5.0) = 1.0;
 uniform float wind_pivot_amplitude : hint_range(0.0, 1.0) = 0.6;
 group_uniforms;
 
+group_uniforms Interaction;
+global uniform sampler2D footpath_tex;
+global uniform vec2      footpath_origin;
+global uniform float     footpath_size;
+group_uniforms;
+
 // Varyings
+varying vec3 world_position;
 varying vec3 debug_color;
 
 // Constants
@@ -82,7 +90,7 @@ vec2 normal_adjustment_coeff(vec2 uv) {
 	float rim = abs(u_coord_centered); // TODO: edge values seem broken
 	rim = smoothstep(rim_thickness, rim_thickness-rim_smoothness, rim);
 	float u_coeff = mix(1, -1, mix(band_inv, band, rim));
-	
+
 	// First element adjusts in TANGENT direction, second element in BINORMAL direction
 	return vec2(u_coeff, 0.0) * details_effect_strength;
 }
@@ -106,10 +114,10 @@ mat2 rotate_y(float angle) {
   return mat2(vec2(c, s), vec2(-s, c));
 }
 
-float sample_wind_strength(vec3 world_position, float rand_num) {
+float sample_wind_strength(vec3 world_pos, float rand_num) {
 	vec2 wind_direction = (vec2(wind_texture_speed_x, wind_texture_speed_y))*wind_texture_speed;
 	vec2 wind_direction_offset = normalize(vec2(sin(rand_num*PI), cos(rand_num*PI))) * wind_direction_randomness;
-	vec2 wind_base_uv = (world_position.xz + wind_direction_offset) / wind_tex_scale;
+	vec2 wind_base_uv = (world_pos.xz + wind_direction_offset) / wind_tex_scale;
 	vec2 wind_uv = panner(wind_base_uv, wind_direction, TIME); // TODO: could use more textures and average between them
 	return texture(wind_texture, wind_uv).r;
 }
@@ -118,10 +126,10 @@ mat2 pivot_blade(float wind_strength, float t, mat4 inverse_model_matrix) {
 	float pivot_strength = wind_strength * wind_pivot_amplitude;
 	vec3 wind_direction_world = vec3(wind_texture_speed_x, 0.0, wind_texture_speed_y);
 	vec3 wind_direction_model = normalize((inverse_model_matrix * vec4(wind_direction_world, 0.0)).xyz );
-	
+
 	const vec2 base_blade_direction = vec2(1.0, 0.0);
 	vec2 wind_blade_direction = -(vec2(wind_direction_model.x, wind_direction_model.z));
-	
+
 	vec2  final_blade_direction = mix(base_blade_direction, wind_blade_direction, pivot_strength);
 	float pivot_angle = atan(final_blade_direction.y, final_blade_direction.x);
 
@@ -129,14 +137,51 @@ mat2 pivot_blade(float wind_strength, float t, mat4 inverse_model_matrix) {
 	return rotate_y(pivot_angle * pivot_length_coeff);
 }
 
+float sample_crushed_factor_cpu(vec3 world_pos) {
+	vec2 footpath_uv = (world_pos.xz - footpath_origin) / footpath_size;
+	float imprint = texture(footpath_tex, footpath_uv).r;
+	return imprint;
+}
+
+//global uniform int POS_ARRAY_LENGTH;
+//global uniform sampler2D position_array_tex;
+//global uniform int position_array_index;
+//uniform float footprint_radius : hint_range(0.1, 5.0) = 1.5;
+//float sample_crushed_factor_gpu(vec3 world_pos) {
+	//float final_imprint = 0.0;
+//
+	//for (int i = 0; i < POS_ARRAY_LENGTH; i++) {
+		//vec4 pos_data = texelFetch(position_array_tex, ivec2(i, 0), 0);
+//
+		//if (pos_data.a > 0.5) {
+			//vec3 history_pos = pos_data.rgb;
+//
+			//// Use the 'world_pos' argument instead of the global WORLD_POSITION
+			//float dist = distance(world_pos.xz, history_pos.xz);
+//
+			//float spatial_brightness = 1.0 - smoothstep(0.0, footprint_radius, dist);
+//
+			//int age = (position_array_index - 1 - i + POS_ARRAY_LENGTH) % POS_ARRAY_LENGTH;
+			//float temporal_brightness = 1.0 - (float(age) / float(POS_ARRAY_LENGTH));
+//
+			//float footprint_brightness = spatial_brightness * temporal_brightness;
+			//final_imprint = max(final_imprint, footprint_brightness);
+		//}
+	//}
+//
+	//return final_imprint;
+//}
+
 
 void vertex() {
 	// Useful variables used throughout vertex shader
 	mat4 inverse_model_matrix = inverse_model_matrix(MODEL_MATRIX);
-	vec3 world_position = MODEL_MATRIX[3].xyz;
+	world_position = MODEL_MATRIX[3].xyz;
 	float rand_num = (hash13(world_position) - 0.5)*2.0; // [-1, 1] range
+	float crushed_factor = (1.0 - sample_crushed_factor_cpu(world_position));
 	float t = VERTEX.x;
-	
+
+
 	// Define initial control points that will be used to curve the plane through a Bezier curve
 	vec2 p0 = p0_base;
 	vec2 p1 = vec2(control_x, control_y);
@@ -148,7 +193,7 @@ void vertex() {
 
 	// Wind: we create the impression of wind by changing the position
 	//       of the control points and pivoting the blade over time
-	float wind_strength = sample_wind_strength(world_position, rand_num);
+	float wind_strength = sample_wind_strength(world_position, rand_num); //* crushed_factor;
 
 	// For the control point manipulation, there are two types of motion: swelling and fluttering.
 	// Primary wind motion: swell, ranging from [-grass_swell_amplitude, 0]
@@ -164,9 +209,15 @@ void vertex() {
 	// We update the control points with the wind influence
 	vec2 p1_wind_effect = vec2(0, grass_swell);
 	p1 += p1_wind_effect * wind_effect_base_amplitude * wind_effect_mid_amplitude;
+	p1 = max(vec2(0.0), p1);
 	vec2 p2_wind_effect = vec2(grass_swell, grass_swell+grass_flutter);
 	p2 += p2_wind_effect * wind_effect_base_amplitude * wind_effect_tip_amplitude;
-	
+	p2 = max(vec2(0.0), p2);
+
+	// Reduce height of crushed blades
+	p2.y *= min(1.0, crushed_factor);
+	p1.y *= min(1.0, crushed_factor);
+
 	// Calculate the bezier curves, and deform the xy axes accordingly
 	vec2 bezier_vec = bezier(t, p0, p1, p2);
 	vec2 bezier_normal_vec = bezier_normal(t, p0, p1, p2);
@@ -174,7 +225,7 @@ void vertex() {
 	float approx_blade_length = 1.0; // (2.0*length(p2 - p0) + length(p1 - p0) + length(p2 - p1)) / 3.0;
 	VERTEX.xy = vec2(bezier_vec.x, bezier_vec.y) / approx_blade_length;
 	NORMAL.xy = vec2(bezier_normal_vec.x, bezier_normal_vec.y);
-	
+
 	// Tertiary wind motion: pivoting the blade to face the wind
 	mat2 grass_pivot = pivot_blade(wind_strength, t, inverse_model_matrix);
 	VERTEX.xz  = grass_pivot * VERTEX.xz;
@@ -202,10 +253,11 @@ void fragment() {
 
 	// Color and texture
 	// Texture is a one pixel tall greyscale noise, that gets stretched over the length of the blade
-    vec3 tex_color = texture(veins_texture, UV.yx).rgb;
+    vec3 tex_colour = texture(veins_texture, UV.yx).rgb;
 	// We change the color according to the texture
-	ALBEDO = mix(base_color, (1.0-veins_strength)*base_color, tex_color);
-	//ALBEDO = debug_color.rgb;
+	vec3 albedo_colour = mix(base_color, tip_color, UV.x - 0.5);
+	ALBEDO = mix(albedo_colour, (1.0-veins_strength)*albedo_colour, tex_colour);;
+	//ALBEDO = debug_color;
 
     // Lightning
 	float gloss = clamp(gloss_amount*UV.x, 0.0, 1.0);

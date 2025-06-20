@@ -1,11 +1,11 @@
-[gd_scene load_steps=35 format=3 uid="uid://b6ipamyyvedlc"]
+[gd_scene load_steps=36 format=3 uid="uid://b6ipamyyvedlc"]
 
 [ext_resource type="PackedScene" uid="uid://p7360b8bsbyr" path="res://scenes/grass_field.tscn" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://cy36aygvs66pn" path="res://addons/gdquest_gobot/gobot_skin.tscn" id="2_a8y0u"]
 [ext_resource type="Script" uid="uid://dblu4uqrna0o" path="res://assets/scripts/Player.gd" id="3_an6go"]
 [ext_resource type="Shader" uid="uid://cvd0x7lon1ur6" path="res://addons/sky_3d/shaders/SkyMaterial.gdshader" id="3_eb6dy"]
-[ext_resource type="Script" path="res://scenes/camera_spring_arm.gd" id="3_jkv2x"]
-[ext_resource type="Script" path="res://scenes/camera_follow.gd" id="4_jbj1t"]
+[ext_resource type="Script" uid="uid://cwaiodejkc1gf" path="res://assets/scripts/camera_spring_arm.gd" id="3_jkv2x"]
+[ext_resource type="Script" uid="uid://drhk0koreenx3" path="res://assets/scripts/camera_follow.gd" id="4_jbj1t"]
 [ext_resource type="Texture2D" uid="uid://c1vwcdcdvb74a" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/Milkyway.jpg" id="4_trceg"]
 [ext_resource type="Texture2D" uid="uid://cfqk60lpl5ljv" path="res://addons/sky_3d/assets/resources/SNoise.tres" id="5_a8y0u"]
 [ext_resource type="Texture2D" uid="uid://cecwdqjol0ckd" path="res://addons/sky_3d/assets/textures/noiseClouds.png" id="6_jkv2x"]
@@ -16,6 +16,7 @@
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/Skydome.gd" id="11_gqmmt"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="12_yc10j"]
 [ext_resource type="Texture2D" uid="uid://b2jmnp5jsa1x" path="res://assets/materials/circle_05.png" id="13_trceg"]
+[ext_resource type="Script" uid="uid://8lmixukdvigq" path="res://assets/scripts/drawer.gd" id="18_dp3eg"]
 
 [sub_resource type="GDScript" id="GDScript_jbj1t"]
 script/source = "@tool
@@ -78,7 +79,7 @@ shader_parameter/background_color = Color(0.709804, 0.709804, 0.709804, 0.854902
 shader_parameter/stars_field_color = Color(1, 1, 1, 1)
 shader_parameter/stars_field_texture = ExtResource("9_dp3eg")
 shader_parameter/sky_alignment = Vector3(2.6555, -0.23935, 0.4505)
-shader_parameter/sky_rotation = -11.2226
+shader_parameter/sky_rotation = -11.4923
 shader_parameter/sky_tilt = -0.785398
 shader_parameter/stars_scintillation = 0.75
 shader_parameter/stars_scintillation_speed = 0.01
@@ -113,8 +114,8 @@ shader_parameter/cumulus_clouds_horizon_light_color = Color(0.98, 0.43, 0.15, 1)
 shader_parameter/cumulus_clouds_night_color = Color(0.090196, 0.094118, 0.129412, 1)
 shader_parameter/cumulus_clouds_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_clouds_mie_intensity = 1.0
-shader_parameter/moon_matrix = Basis(-1.49012e-08, -0.942517, 0.334157, -0.925636, 0.12645, 0.356663, -0.378415, -0.309308, -0.872428)
-shader_parameter/deep_space_matrix = Basis(-0.225063, 0.974344, 0, 0.688966, 0.159144, -0.707106, -0.688965, -0.159144, -0.707107)
+shader_parameter/moon_matrix = Basis(-1.86265e-08, -0.930087, 0.36734, -0.986838, 0.0594028, 0.150405, -0.161711, -0.362505, -0.917845)
+shader_parameter/deep_space_matrix = Basis(-0.476565, 0.879139, 0, 0.621646, 0.336983, -0.707106, -0.621645, -0.336982, -0.707107)
 
 [sub_resource type="Sky" id="Sky_trceg"]
 sky_material = SubResource("ShaderMaterial_eb6dy")
@@ -123,7 +124,7 @@ sky_material = SubResource("ShaderMaterial_eb6dy")
 background_mode = 2
 sky = SubResource("Sky_trceg")
 ambient_light_source = 3
-ambient_light_color = Color(0.780412, 0.69732, 0.655682, 1)
+ambient_light_color = Color(0.782803, 0.701137, 0.660215, 1)
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_white = 6.0
@@ -195,15 +196,14 @@ material = SubResource("StandardMaterial3D_pm3ni")
 script = SubResource("GDScript_jbj1t")
 
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 2.4, 0, -1.1, 0)
+transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 2.4, 14.4995, 0, 9.89606)
 script = ExtResource("3_an6go")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.14755, 0.010312)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.725, 0)
 shape = SubResource("CapsuleShape3D_jbj1t")
 
 [node name="GobotSkin" parent="Player" instance=ExtResource("2_a8y0u")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
 [node name="SpringArmPivot" type="Node3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.398, 0.32895)
@@ -217,7 +217,6 @@ spring_length = 4.0
 [node name="SpringPosition" type="Node3D" parent="Player/SpringArmPivot/SpringArm3D"]
 
 [node name="Camera3D" type="Camera3D" parent="Player/SpringArmPivot" node_paths=PackedStringArray("spring_arm")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.38419e-07, 0.0507648)
 script = ExtResource("4_jbj1t")
 spring_arm = NodePath("../SpringArm3D/SpringPosition")
 lerp_power = 6.0
@@ -228,7 +227,7 @@ lerp_power = 6.0
 environment = SubResource("Environment_a8y0u")
 camera_attributes = SubResource("CameraAttributesPractical_jkv2x")
 script = ExtResource("10_0ld40")
-current_time = 11.3605
+current_time = 12.388
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
 [node name="TimeOfDay" type="Node" parent="Sky3D"]
@@ -236,25 +235,25 @@ script = ExtResource("12_yc10j")
 update_in_editor = false
 update_in_game = false
 dome_path = NodePath("../Skydome")
-total_hours = 11.3605
+total_hours = 12.388
 day = 11
 latitude = 45.0
 
 [node name="Skydome" type="Node" parent="Sky3D"]
 script = ExtResource("11_gqmmt")
 exposure = 0.8
-sun_azimuth = -171.533
-sun_altitude = -67.4153
-moon_azimuth = -336.551
-moon_altitude = -108.017
+sun_azimuth = -187.017
+sun_altitude = -67.2707
+moon_azimuth = -350.008
+moon_altitude = -111.254
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D"]
-transform = Transform3D(0, -0.990716, 0.135947, 0.921808, 0.0526997, 0.384049, -0.387648, 0.125317, 0.91325, 0.135947, 0.384049, 0.91325)
-light_color = Color(0.995362, 0.889383, 0.836277, 1)
+transform = Transform3D(0, -0.993632, -0.112674, 0.9213, -0.0438137, 0.386377, -0.388854, -0.103807, 0.915433, -0.112674, 0.386377, 0.915433)
+light_color = Color(0.995455, 0.891604, 0.839565, 1)
 shadow_enabled = true
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D"]
-transform = Transform3D(0, -0.925636, -0.378416, -0.942517, 0.12645, -0.309308, 0.334157, 0.356663, -0.872428, -0.378416, -0.309308, -0.872428)
+transform = Transform3D(0, -0.986838, -0.161711, -0.930087, 0.0594029, -0.362505, 0.36734, 0.150405, -0.917845, -0.161711, -0.362505, -0.917845)
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 light_specular = 2.5
@@ -266,3 +265,10 @@ amount = 512
 lifetime = 10.0
 process_material = SubResource("ParticleProcessMaterial_jscy8")
 draw_pass_1 = SubResource("QuadMesh_y6deb")
+
+[node name="Trail" type="SubViewport" parent="."]
+disable_3d = true
+transparent_bg = true
+
+[node name="Drawer" type="Node2D" parent="Trail"]
+script = ExtResource("18_dp3eg")

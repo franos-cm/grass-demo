@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dyrml3l0ufim2"
-path="res://.godot/imported/bee_bot_vignette.png-d062259bf3c91f75c337a21c16197211.ctex"
+uid="uid://xv0ee4kxc1jo"
+path="res://.godot/imported/gobot_vignette.png-d52919a3f951f996df17b64e29f87b9d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://resources/bee_bot_vignette.png"
-dest_files=["res://.godot/imported/bee_bot_vignette.png-d062259bf3c91f75c337a21c16197211.ctex"]
+source_file="res://assets/materials/gobot_vignette.png"
+dest_files=["res://.godot/imported/gobot_vignette.png-d52919a3f951f996df17b64e29f87b9d.ctex"]
 
 [params]
 

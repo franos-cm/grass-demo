@@ -1,10 +1,16 @@
-[gd_scene load_steps=14 format=3 uid="uid://p7360b8bsbyr"]
+[gd_scene load_steps=15 format=3 uid="uid://p7360b8bsbyr"]
 
 [ext_resource type="PlaneMesh" uid="uid://b28ffsg2x4ipw" path="res://assets/materials/grass_mesh.tres" id="1_fa7tb"]
 [ext_resource type="Script" uid="uid://e348oofdfnyq" path="res://assets/scripts/multi_mesh_grass.gd" id="2_qwphb"]
 [ext_resource type="Shader" uid="uid://cpx8hypdq3fwh" path="res://assets/shaders/grass_blade_debug.gdshader" id="3_t2h0i"]
 [ext_resource type="Material" uid="uid://bc01ru1635u3y" path="res://assets/materials/brown_mud_leaves_01.res" id="4_awlud"]
 [ext_resource type="Shader" uid="uid://xde23rj60lyr" path="res://assets/shaders/square.gdshader" id="5_kluv6"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_6hef4"]
+transform_format = 1
+instance_count = 1
+mesh = ExtResource("1_fa7tb")
+buffer = PackedFloat32Array(-0.219459, 0, 1.26286, -24.8607, 0, 1.28179, 0, 0, -1.26286, 0, -0.219459, -17.1059)
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_jv7tp"]
 noise_type = 3
@@ -74,34 +80,33 @@ center_offset = Vector3(0, 0.5, 0)
 [node name="GrassField" type="Node3D"]
 
 [node name="GrassFieldMultiMesh" type="MultiMeshInstance3D" parent="."]
+multimesh = SubResource("MultiMesh_6hef4")
 script = ExtResource("2_qwphb")
 
 [node name="GrassBlade" type="MeshInstance3D" parent="GrassFieldMultiMesh"]
-transform = Transform3D(0.335008, 0.942215, 0, -0.942215, 0.335008, 0, 0, 0, 1, -2.46931, 6.12254, 2.04073)
-visible = false
+transform = Transform3D(0.999284, -0.0378302, 0, 0.0378302, 0.999284, 0, 0, 0, 1, 1.22008, 6.12254, 4.33337)
 cast_shadow = 0
 mesh = ExtResource("1_fa7tb")
 skeleton = NodePath("../../..")
 
 [node name="GrassBladeDebug" type="MeshInstance3D" parent="GrassFieldMultiMesh/GrassBlade"]
-visible = false
 cast_shadow = 0
 mesh = ExtResource("1_fa7tb")
 skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("ShaderMaterial_bstpt")
 
 [node name="Plane" type="MeshInstance3D" parent="GrassFieldMultiMesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0477753, 0)
 mesh = SubResource("PlaneMesh_w5gws")
 
 [node name="Floor" type="MeshInstance3D" parent="."]
+transparency = 1.0
 mesh = SubResource("PlaneMesh_an6go")
 skeleton = NodePath("../..")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Floor"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D"]
-transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+transform = Transform3D(30, 0, 0, 0, 30, 0, 0, 0, 30, 0, 0, 0)
 shape = SubResource("ConcavePolygonShape3D_an6go")
 
 [node name="DebugSquare" type="MeshInstance3D" parent="."]
@@ -111,6 +116,5 @@ mesh = SubResource("QuadMesh_f4gvo")
 skeleton = NodePath("../..")
 
 [node name="Ground" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0955506, 0)
 mesh = SubResource("PlaneMesh_w5gws")
 skeleton = NodePath("../GrassFieldMultiMesh/Plane")
