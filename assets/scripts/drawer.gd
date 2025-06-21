@@ -20,9 +20,11 @@ var map_origin       : Vector3                       # bottom-left corner of the
 
 func _ready() -> void:
 	player = get_node("../../Player")
-	
 	if player:
 		_recenter(player.global_position)
+
+	RenderingServer.global_shader_parameter_set("footpath_size",  map_size)
+	RenderingServer.global_shader_parameter_set("footpath_tex", vp.get_texture())
 	set_physics_process(true)
 
 # ───────── Main loop ─────────
@@ -38,9 +40,8 @@ func _recenter(pos: Vector3) -> void:
 
 
 func _update_shader_uniforms() -> void:
-	RenderingServer.global_shader_parameter_set("footpath_tex", vp.get_texture())
 	RenderingServer.global_shader_parameter_set("footpath_origin", Vector2(map_origin.x, map_origin.z))
-	RenderingServer.global_shader_parameter_set("footpath_size",  map_size)
+	
 
 # ───────── Helpers ─────────
 func _world_to_tex(world_pos: Vector3) -> Vector2:

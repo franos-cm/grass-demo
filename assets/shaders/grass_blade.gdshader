@@ -12,8 +12,14 @@ group_uniforms;
 
 // Lighting/aesthetical params
 group_uniforms Lighting;
-uniform vec3 base_color: source_color = vec3(0.46, 0.53, 0.2);
-uniform vec3 tip_color: source_color = vec3(0.76, 0.87, 0.33);
+uniform vec3 prim_base_color: source_color = vec3(0.46, 0.53, 0.2);
+uniform vec3 prim_tip_color: source_color = vec3(0.76, 0.87, 0.33);
+uniform vec3 seco_base_color: source_color = vec3(0.55, 0.50, 0.19);
+uniform vec3 seco_tip_color: source_color = vec3(0.59, 0.50, 0.19);
+uniform vec3 tert_base_color: source_color = vec3(0.55, 0.56, 0.18);
+uniform vec3 tert_tip_color: source_color = vec3(0.68, 0.71, 0.33);
+uniform float prim_color_ratio: hint_range(0.0, 1.0) = 0.7;
+uniform float seco_color_ratio: hint_range(0.0, 1.0) = 0.5;
 uniform float details_effect_strength: hint_range(0.0, 0.6) = 0.1;
 uniform float ridge_smoothness: hint_range(0.0, 0.3) = 0.03;
 uniform float rim_thickness: hint_range(0.3, 0.5) = 0.49;
@@ -33,8 +39,8 @@ uniform float wind_tex_scale: hint_range(1.0, 500.0) = 75.0;
 uniform float wind_direction_randomness: hint_range(0.0, 10.0) = 1.5;
 uniform float wind_texture_speed_x: hint_range(-1.0, 1.0) = 0.15;
 uniform float wind_texture_speed_y: hint_range(-1.0, 1.0) = -0.08;
-uniform float wind_texture_speed: hint_range(0.0, 10.0) = 0.4;
-uniform float grass_swell_amplitude: hint_range(0.0, 1.0) = 0.5;
+uniform float wind_texture_speed: hint_range(0.0, 10.0) = 0.3;
+uniform float grass_swell_amplitude: hint_range(0.0, 1.0) = 0.3;
 uniform float flutter_frequency: hint_range(0.0, 10.0) = 2.0;
 uniform float flutter_speed: hint_range(0.0, 10.0) = 0.5;
 uniform float flutter_amplitude: hint_range(0.0, 1.0) = 0.03;
@@ -51,6 +57,7 @@ global uniform float     footpath_size;
 group_uniforms;
 
 // Varyings
+varying float instance_rand_num;  // [0, 1] range
 varying vec3 world_position;
 varying vec3 debug_color;
 
@@ -177,7 +184,8 @@ void vertex() {
 	// Useful variables used throughout vertex shader
 	mat4 inverse_model_matrix = inverse_model_matrix(MODEL_MATRIX);
 	world_position = MODEL_MATRIX[3].xyz;
-	float rand_num = (hash13(world_position) - 0.5)*2.0; // [-1, 1] range
+	instance_rand_num = hash13(world_position);
+	float remapped_rand_num = (instance_rand_num - 0.5)*2.0;
 	float crushed_factor = (1.0 - sample_crushed_factor_cpu(world_position));
 	float t = VERTEX.x;
 
@@ -193,7 +201,7 @@ void vertex() {
 
 	// Wind: we create the impression of wind by changing the position
 	//       of the control points and pivoting the blade over time
-	float wind_strength = sample_wind_strength(world_position, rand_num); //* crushed_factor;
+	float wind_strength = sample_wind_strength(world_position, remapped_rand_num); //* crushed_factor;
 
 	// For the control point manipulation, there are two types of motion: swelling and fluttering.
 	// Primary wind motion: swell, ranging from [-grass_swell_amplitude, 0]
@@ -203,7 +211,7 @@ void vertex() {
 
 	// Secondary wind motion: flutter, ranging from [-flutter_amplitude/2, flutter_amplitude/2]
 	// Flutter increases over blade length, and is determined (somewhat) randomly for each blade
-	float grass_flutter = (t + flutter_speed*TIME) * flutter_frequency + rand_num;
+	float grass_flutter = (t + flutter_speed*TIME) * flutter_frequency + remapped_rand_num;
 	grass_flutter = (sin(grass_flutter*PI)) * flutter_amplitude / 2.0;
 
 	// We update the control points with the wind influence
@@ -215,8 +223,8 @@ void vertex() {
 	p2 = max(vec2(0.0), p2);
 
 	// Reduce height of crushed blades
-	p2.y *= min(1.0, crushed_factor);
-	p1.y *= min(1.0, crushed_factor);
+	p2.y *= min(1.0, crushed_factor + 0.05);
+	p1.y *= min(1.0, crushed_factor + 0.05);
 
 	// Calculate the bezier curves, and deform the xy axes accordingly
 	vec2 bezier_vec = bezier(t, p0, p1, p2);
@@ -251,12 +259,25 @@ void fragment() {
 	vec3 normal_adjustment_vec = TANGENT*adjustment_coeffs.x + BINORMAL*adjustment_coeffs.y;
 	NORMAL = normalize(NORMAL + normal_adjustment_vec);
 
-	// Color and texture
+	// Color: we have 3 possible main colors, and we also add microtone differences for each blade
+	vec3 base_color, tip_color;
+	float prim_color_flag = step(prim_color_ratio, instance_rand_num);
+	float seco_color_flag = step((1.0-prim_color_ratio)*seco_color_ratio + prim_color_ratio, instance_rand_num);
+	base_color = mix(mix(prim_base_color, seco_base_color, prim_color_flag), tert_base_color, seco_color_flag);
+	tip_color = mix(mix(prim_tip_color, seco_tip_color, prim_color_flag), tert_tip_color, seco_color_flag);
+	float rand_coeff_base = (hash13(world_position.zyx) - 0.5)*2.0;
+	float rand_coeff_tip = (hash13(world_position.yzx) - 0.5)*2.0;
+	base_color += rand_coeff_base/15.0;
+	tip_color += rand_coeff_tip/15.0;
+	//base_color = prim_base_color;
+	//tip_color = prim_tip_color;
+
 	// Texture is a one pixel tall greyscale noise, that gets stretched over the length of the blade
-    vec3 tex_colour = texture(veins_texture, UV.yx).rgb;
+    vec3 tex_color = texture(veins_texture, UV.yx).rgb;
+
 	// We change the color according to the texture
-	vec3 albedo_colour = mix(base_color, tip_color, UV.x - 0.5);
-	ALBEDO = mix(albedo_colour, (1.0-veins_strength)*albedo_colour, tex_colour);;
+	vec3 albedo_color = mix(base_color, tip_color, UV.x - 0.5);
+	ALBEDO = mix(albedo_color, (1.0-veins_strength)*albedo_color, tex_color);;
 	//ALBEDO = debug_color;
 
     // Lightning

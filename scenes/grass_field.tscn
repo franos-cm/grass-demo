@@ -84,12 +84,13 @@ multimesh = SubResource("MultiMesh_6hef4")
 script = ExtResource("2_qwphb")
 
 [node name="GrassBlade" type="MeshInstance3D" parent="GrassFieldMultiMesh"]
-transform = Transform3D(0.999284, -0.0378302, 0, 0.0378302, 0.999284, 0, 0, 0, 1, 1.22008, 6.12254, 4.33337)
+transform = Transform3D(0.999284, -0.0378302, 0, 0.0378302, 0.999284, 0, 0, 0, 1, 1.22008, 6.12254, 3.33337)
 cast_shadow = 0
 mesh = ExtResource("1_fa7tb")
 skeleton = NodePath("../../..")
 
 [node name="GrassBladeDebug" type="MeshInstance3D" parent="GrassFieldMultiMesh/GrassBlade"]
+visible = false
 cast_shadow = 0
 mesh = ExtResource("1_fa7tb")
 skeleton = NodePath("../..")
@@ -99,6 +100,7 @@ surface_material_override/0 = SubResource("ShaderMaterial_bstpt")
 mesh = SubResource("PlaneMesh_w5gws")
 
 [node name="Floor" type="MeshInstance3D" parent="."]
+visible = false
 transparency = 1.0
 mesh = SubResource("PlaneMesh_an6go")
 skeleton = NodePath("../..")
