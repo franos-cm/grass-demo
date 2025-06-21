@@ -51,7 +51,7 @@ uniform float wind_pivot_amplitude : hint_range(0.0, 1.0) = 0.6;
 group_uniforms;
 
 group_uniforms Interaction;
-global uniform sampler2D footpath_tex;
+global uniform sampler2D footpath_tex: repeat_disable;
 global uniform vec2      footpath_origin;
 global uniform float     footpath_size;
 group_uniforms;
