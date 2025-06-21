@@ -1,5 +1,6 @@
 [gd_scene load_steps=37 format=3 uid="uid://b6ipamyyvedlc"]
 
+[ext_resource type="Script" uid="uid://bspet6c8rm8fj" path="res://assets/scripts/main.gd" id="1_0ld40"]
 [ext_resource type="PackedScene" uid="uid://p7360b8bsbyr" path="res://scenes/grass_field.tscn" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://cy36aygvs66pn" path="res://addons/gdquest_gobot/gobot_skin.tscn" id="2_a8y0u"]
 [ext_resource type="Script" uid="uid://dblu4uqrna0o" path="res://assets/scripts/Player.gd" id="3_an6go"]
@@ -8,7 +9,7 @@
 [ext_resource type="Script" uid="uid://drhk0koreenx3" path="res://assets/scripts/camera_follow.gd" id="4_jbj1t"]
 [ext_resource type="Texture2D" uid="uid://c1vwcdcdvb74a" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/Milkyway.jpg" id="4_trceg"]
 [ext_resource type="Texture2D" uid="uid://cfqk60lpl5ljv" path="res://addons/sky_3d/assets/resources/SNoise.tres" id="5_a8y0u"]
-[ext_resource type="Script" uid="uid://dwv0j05fcimf4" path="res://scenes/fireflies.gd" id="6_dp3eg"]
+[ext_resource type="Script" uid="uid://dwv0j05fcimf4" path="res://assets/scripts/fireflies.gd" id="6_dp3eg"]
 [ext_resource type="Texture2D" uid="uid://cecwdqjol0ckd" path="res://addons/sky_3d/assets/textures/noiseClouds.png" id="6_jkv2x"]
 [ext_resource type="Texture2D" uid="uid://2r8ylu6rg5dp" path="res://addons/sky_3d/assets/thirdparty/textures/moon/MoonMap.png" id="7_jbj1t"]
 [ext_resource type="Texture2D" uid="uid://djpfuyxkryegn" path="res://addons/sky_3d/assets/textures/noise.jpg" id="8_muem4"]
@@ -18,21 +19,6 @@
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="12_yc10j"]
 [ext_resource type="Texture2D" uid="uid://b2jmnp5jsa1x" path="res://assets/materials/circle_05.png" id="13_trceg"]
 [ext_resource type="Script" uid="uid://8lmixukdvigq" path="res://assets/scripts/drawer.gd" id="18_dp3eg"]
-
-[sub_resource type="GDScript" id="GDScript_jbj1t"]
-script/source = "@tool
-extends Node3D
-
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	$GrassField/GrassFieldMultiMesh.player = $Player
-	$GrassField/GrassFieldMultiMesh.init_with_player($Player)
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-"
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jbj1t"]
 radius = 0.57
@@ -176,7 +162,7 @@ shader_parameter/cumulus_clouds_horizon_light_color = Color(0.98, 0.43, 0.15, 1)
 shader_parameter/cumulus_clouds_night_color = Color(0.090196, 0.094118, 0.129412, 1)
 shader_parameter/cumulus_clouds_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_clouds_mie_intensity = 1.0
-shader_parameter/moon_matrix = Basis(-3.72529e-09, -0.994303, 0.106593, -0.711478, 0.0749041, 0.698705, -0.702709, -0.0758388, -0.707424)
+shader_parameter/moon_matrix = Basis(0, -0.994303, 0.106593, -0.711478, 0.0749038, 0.698705, -0.702708, -0.0758385, -0.707424)
 shader_parameter/deep_space_matrix = Basis(0.467035, 0.884239, 0, 0.625252, -0.330244, -0.707106, -0.625251, 0.330243, -0.707108)
 
 [sub_resource type="Sky" id="Sky_trceg"]
@@ -194,7 +180,7 @@ tonemap_white = 6.0
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_jkv2x"]
 
 [node name="Main" type="Node3D"]
-script = SubResource("GDScript_jbj1t")
+script = ExtResource("1_0ld40")
 
 [node name="Player" type="CharacterBody3D" parent="."]
 transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 2.4, 1.60112, 0, -0.991807)

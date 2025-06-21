@@ -1,7 +1,7 @@
 @tool
 extends GeometryInstance3D
 
-@export var player: Node3D
+var player: CharacterBody3D
 @export var high_density: float = 0.2
 @export var high_quality: int = 8
 @export var chunks_number: int = 1
@@ -27,12 +27,7 @@ var chunks: Array[Chunk]
 
 func _ready():
 	pass
-	#for i in range(-chunks_number, chunks_number):
-		#for j in range(-chunks_number, chunks_number):
-			#var chunk = instance_chunk(Vector2i(i, j))
-			#maybe_fill_chunk(chunk, player.global_position)
-			#chunks.push_back(chunk)
-			
+
 func init_with_player(p: Node3D) -> void:
 	player = p
 	for i in range(-chunks_number, chunks_number):
