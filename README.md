@@ -5,7 +5,7 @@ This project was developed as part of the **PCS3539 - Tecnologia de Computação
 The goal of the project was to render realistic grass fields for real-time computer graphics applications, primarily targeting video games.
 The project was entirely developed using the Godot game engine, and it was heavily inspired by [this talk given by the developers of Ghost of Tsushima in 2021](https://www.youtube.com/watch?v=Ibe1JBF5i5Y), as well as by other projects exploring similar ideas.
 
-# Running the demo
+# 1. Running the demo
 
 The demo is available as a static website [here](https://franos-cm.github.io/whitman/). We recommend using a computer, since controls require a keyboard.
 
@@ -28,9 +28,9 @@ Because the project focuses on grass rendering itself, player controls are kept 
 
 
 
-# Key points
+# 2. Key points
 
-## Grass blades
+## 2.1. Grass blades
 
 The grass fields are composed of individual grass blades which are instantiated by the GPU. Each grass blade is a simple quad mesh with one-dimensional, length-wise subdivisions. This mesh is then manipulated by a custom shader to simulate the grass geometry and movement. An overview of this shader is given in this section.
 
@@ -74,8 +74,8 @@ void vertex() {
     instance_rand_num_2 = (hash13(world_position.zyx)- 0.5)*2.0;
     float remapped_rand_num_1 = (instance_rand_num_1 - 0.5)*2.0;
     ...
-	float middle_width = (1.0 + 0.25*remapped_rand_num_1) * avg_middle_width;
-	float base_width = (1.0 + 0.25*instance_rand_num_2) * avg_base_width;
+    float middle_width = (1.0 + 0.25*remapped_rand_num_1) * avg_middle_width;
+    float base_width = (1.0 + 0.25*instance_rand_num_2) * avg_base_width;
     float pinching_coeff = (1.0 - t) * middle_width * (t + base_width);
     VERTEX.z *= pinching_coeff;
     ...
@@ -233,22 +233,22 @@ void fragment() {
 Again, this solution avoids drawing extra vertices, which would be computationally more expensive.
 
 
-## Instantiation
+## 2.2. Instantiation
 
-## Terrain
+## 2.3. Terrain
 
-## Environmental extras
+## 2.4. Environmental extras
 
 In order to have a more immersive environment, some additional features were included in the project. Specifically, a dynamic day-night cycle was added onto the game, by using the [Sky3D open-source Godot add-on](https://github.com/TokisanGames/Sky3D). This provides more diverse lighting conditions in which our grass can be analyzed.
 
 Moreover, a "firefly" effect was developed by using a simple ```GPUParticles3D``` that generates small, flickering lights that fly over the grass. This effect interacts with the day-night cycle code, to guarantee that fireflies only spawn during night time.
 
 
-# Performance and results
+# 3. Performance and results
 
 Although there is no strict metric for measuring realism in grass rendering, we believe the results achieved here convey a natural and dynamic appearance. The blades vary in shape and color, respond to wind, and visibly deform under the player's weight. In addition to replicating common techniques used in real-time graphics, the project also explores more advanced features, such as deformation based on the player's movement history rather than just their current position.
 
-# Future improvements
+# 4. Future improvements
 
 Several improvements could be made to provide more realistic &mdash; or at the very least, more complex &mdash; grass fields.
 
