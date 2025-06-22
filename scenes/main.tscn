@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://b6ipamyyvedlc"]
+[gd_scene load_steps=38 format=3 uid="uid://b6ipamyyvedlc"]
 
 [ext_resource type="Script" uid="uid://bspet6c8rm8fj" path="res://assets/scripts/main.gd" id="1_0ld40"]
 [ext_resource type="PackedScene" uid="uid://p7360b8bsbyr" path="res://scenes/grass_field.tscn" id="2_0wfyh"]
@@ -162,7 +162,7 @@ shader_parameter/cumulus_clouds_horizon_light_color = Color(0.98, 0.43, 0.15, 1)
 shader_parameter/cumulus_clouds_night_color = Color(0.090196, 0.094118, 0.129412, 1)
 shader_parameter/cumulus_clouds_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_clouds_mie_intensity = 1.0
-shader_parameter/moon_matrix = Basis(0, -0.949319, 0.314313, -0.998771, -0.0155777, -0.0470493, 0.049561, -0.313927, -0.948153)
+shader_parameter/moon_matrix = Basis(-9.31322e-10, -0.949319, 0.314313, -0.998771, -0.0155777, -0.0470493, 0.0495611, -0.313927, -0.948153)
 shader_parameter/deep_space_matrix = Basis(-0.444575, 0.895742, 2.98023e-08, 0.633386, 0.314362, -0.707106, -0.633384, -0.314362, -0.707108)
 
 [sub_resource type="Sky" id="Sky_trceg"]
@@ -179,11 +179,15 @@ tonemap_white = 6.0
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_jkv2x"]
 
+[sub_resource type="Curve" id="Curve_0ld40"]
+_data = [Vector2(0, 1), 0.0, 0.0958496, 0, 0, Vector2(0.291096, 0.352619), -1.11411, -1.11411, 0, 0, Vector2(1, 0), -0.859561, 0.0, 0, 0]
+point_count = 3
+
 [node name="Main" type="Node3D"]
 script = ExtResource("1_0ld40")
 
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 2.4, 1.60112, 0, -0.991807)
+transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 2.4, -5.47564, 0, -3.89323)
 script = ExtResource("3_an6go")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
@@ -233,6 +237,7 @@ metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 [node name="TimeOfDay" type="Node" parent="Sky3D"]
 script = ExtResource("12_yc10j")
 update_in_editor = false
+update_in_game = false
 dome_path = NodePath("../Skydome")
 total_cycle_in_minutes = 7.0
 total_hours = 12.906
@@ -263,3 +268,4 @@ transparent_bg = true
 
 [node name="Drawer" type="Node2D" parent="Trail"]
 script = ExtResource("18_dp3eg")
+fade_curve = SubResource("Curve_0ld40")

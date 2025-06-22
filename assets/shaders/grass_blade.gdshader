@@ -5,8 +5,10 @@ render_mode cull_disabled;
 group_uniforms Shape;
 uniform float control_x : hint_range(-1.0, 1.0) = 0.25;
 uniform float control_y : hint_range(-2.0, 2.0) = 0.75;
-uniform float avg_base_width: hint_range(0.0, 1.0) = 0.8;
-uniform float avg_middle_width: hint_range(0.0, 1.0) = 0.15;
+uniform float avg_base_width: hint_range(0.0, 1.0) = 0.7;
+uniform float avg_middle_width: hint_range(0.0, 1.0) = 0.135;
+uniform float base_width_randomness: hint_range(0.0, 0.5) = 0.25;
+uniform float middle_width_randomness: hint_range(0.0, 0.5) = 0.25;
 uniform float side_thickness: hint_range(0.0, 10.0) = 4.0;
 group_uniforms;
 
@@ -200,8 +202,8 @@ void vertex() {
 	vec2 p2 = p2_base;
 
 	// Pinch z axis so plane has the format of a blade
-	float middle_width = (1.0 + 0.25*remapped_rand_num_1) * avg_middle_width;
-	float base_width = (1.0 + 0.25*instance_rand_num_2) * avg_base_width;
+	float middle_width = (1.0 + middle_width_randomness*remapped_rand_num_1) * avg_middle_width;
+	float base_width = (1.0 + base_width_randomness*instance_rand_num_2) * avg_base_width;
 	float pinching_coeff = (1.0 - t) * middle_width * (t + base_width);
 	VERTEX.z *= pinching_coeff;
 
