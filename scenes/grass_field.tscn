@@ -84,7 +84,7 @@ multimesh = SubResource("MultiMesh_6hef4")
 script = ExtResource("2_qwphb")
 
 [node name="GrassBlade" type="MeshInstance3D" parent="GrassFieldMultiMesh"]
-transform = Transform3D(0.999284, -0.0378302, 0, 0.0378302, 0.999284, 0, 0, 0, 1, 1.22008, 6.12254, 3.33337)
+transform = Transform3D(0.999284, -0.0378302, 0, 0.0378302, 0.999284, 0, 0, 0, 1, 1.22008, 6.12254, 1.96827)
 cast_shadow = 0
 mesh = ExtResource("1_fa7tb")
 skeleton = NodePath("../../..")

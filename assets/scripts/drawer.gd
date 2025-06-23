@@ -36,6 +36,7 @@ func _ready() -> void:
 # ───────── Main loop ─────────
 func _physics_process(_delta: float) -> void:
 	if not player: return
+	RenderingServer.global_shader_parameter_set("PLAYER_POSITION", player.global_position)
 	_recenter(player.global_position)
 	_update_shader_uniforms()
 	queue_redraw()

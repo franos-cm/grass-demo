@@ -1,6 +1,10 @@
 shader_type spatial;
 render_mode cull_disabled;
 
+group_uniforms Type;
+uniform int grass_type: hint_enum("Realistic", "Toon") = 0;
+group_uniforms;
+
 // Base geometrical params
 group_uniforms Shape;
 uniform float control_x : hint_range(-1.0, 1.0) = 0.25;
@@ -14,8 +18,7 @@ group_uniforms;
 
 // Lighting/aesthetical params
 group_uniforms Lighting;
-uniform bool flat_color = false;
-uniform float flat_color_emission_coeff: hint_range(0.0, 2.0) = 1.5;
+uniform float flat_color_emission_coeff: hint_range(0.0, 2.0) = 1.0;
 uniform vec3 prim_base_color: source_color = vec3(0.46, 0.53, 0.2);
 uniform vec3 prim_tip_color: source_color = vec3(0.76, 0.87, 0.33);
 uniform vec3 seco_base_color: source_color = vec3(0.55, 0.50, 0.19);
@@ -59,6 +62,7 @@ global uniform sampler2D footpath_tex: repeat_disable;
 global uniform vec2      footpath_origin;
 global uniform float     footpath_size;
 global uniform vec3      AMBIENT_LIGHT_COLOR;
+global uniform vec3      PLAYER_POSITION;
 group_uniforms;
 
 // Varyings
@@ -70,7 +74,8 @@ varying vec3 debug_color;
 
 // Constants
 const vec2 p0_base = vec2(0.0, 0.0);
-const vec2 p2_base = vec2(0.7, 1.25);
+const vec2 p2_base_realistic = vec2(1.2, 0.75);
+const vec2 p2_base_toon = vec2(0.7, 1.25);
 
 
 float hash13(vec3 x) {
@@ -136,62 +141,50 @@ float sample_wind_strength(vec3 world_pos, float rand_num) {
 	return texture(wind_texture, wind_uv).r;
 }
 
-mat2 pivot_blade(float wind_strength, float t, mat4 inverse_model_matrix) {
+mat2 pivot_blade(float wind_strength, vec3 world_pos, float t, mat4 inverse_model_matrix) {
 	float pivot_strength = wind_strength * wind_pivot_amplitude;
+
 	vec3 wind_direction_world = vec3(wind_texture_speed_x, 0.0, wind_texture_speed_y);
 	vec3 wind_direction_model = normalize((inverse_model_matrix * vec4(wind_direction_world, 0.0)).xyz );
+	vec2 wind_direction = -wind_direction_model.xz;
 
 	const vec2 base_blade_direction = vec2(1.0, 0.0);
-	vec2 wind_blade_direction = -(vec2(wind_direction_model.x, wind_direction_model.z));
+	vec2 wind_blade_direction = mix(base_blade_direction, wind_direction, pivot_strength);
+	
+	vec2 final_blade_direction;
+	if (grass_type == 1) {
+		vec3 player_direction_world = PLAYER_POSITION - world_position;
+		vec3 player_direction_model = normalize((inverse_model_matrix * vec4(player_direction_world, 0.0)).xyz );
+		vec2 player_direction = -player_direction_model.xz;
+		float player_distance = length(player_direction_world);
+		float crushed_factor = min(pow(player_distance, 2.0)*0.1, 1.0);
+		final_blade_direction = mix(player_direction, wind_blade_direction, crushed_factor);
+	}
+	else {
+		final_blade_direction = mix(base_blade_direction, wind_blade_direction, pivot_strength);
+	}
 
-	vec2  final_blade_direction = mix(base_blade_direction, wind_blade_direction, pivot_strength);
 	float pivot_angle = atan(final_blade_direction.y, final_blade_direction.x);
-
 	float pivot_length_coeff = clamp(pow(t, 2.0) + 0.05, 0.0, 1.0);
 	return rotate_y(pivot_angle * pivot_length_coeff);
 }
 
-float sample_crushed_factor_cpu(vec3 world_pos) {
-	vec2 footpath_uv = (world_pos.xz - footpath_origin) / footpath_size;
-	float imprint = texture(footpath_tex, footpath_uv).r;
-	return imprint;
+float sample_crushed_factor(vec3 world_pos) {
+	if (grass_type == 0) {
+		vec2 footpath_uv = (world_pos.xz - footpath_origin) / footpath_size;
+		float imprint = texture(footpath_tex, footpath_uv).r;
+		return (1.0 - imprint);
+	}
+	float player_distance = length(PLAYER_POSITION - world_position);
+	return min(pow(player_distance, 2.0)*0.5, 1.0);
 }
-
-//global uniform int POS_ARRAY_LENGTH;
-//global uniform sampler2D position_array_tex;
-//global uniform int position_array_index;
-//uniform float footprint_radius : hint_range(0.1, 5.0) = 1.5;
-//float sample_crushed_factor_gpu(vec3 world_pos) {
-	//float final_imprint = 0.0;
-//
-	//for (int i = 0; i < POS_ARRAY_LENGTH; i++) {
-		//vec4 pos_data = texelFetch(position_array_tex, ivec2(i, 0), 0);
-//
-		//if (pos_data.a > 0.5) {
-			//vec3 history_pos = pos_data.rgb;
-//
-			//// Use the 'world_pos' argument instead of the global WORLD_POSITION
-			//float dist = distance(world_pos.xz, history_pos.xz);
-//
-			//float spatial_brightness = 1.0 - smoothstep(0.0, footprint_radius, dist);
-//
-			//int age = (position_array_index - 1 - i + POS_ARRAY_LENGTH) % POS_ARRAY_LENGTH;
-			//float temporal_brightness = 1.0 - (float(age) / float(POS_ARRAY_LENGTH));
-//
-			//float footprint_brightness = spatial_brightness * temporal_brightness;
-			//final_imprint = max(final_imprint, footprint_brightness);
-		//}
-	//}
-//
-	//return final_imprint;
-//}
 
 
 void vertex() {
 	// Useful variables used throughout vertex shader
 	mat4 inverse_model_matrix = inverse_model_matrix(MODEL_MATRIX);
 	world_position = MODEL_MATRIX[3].xyz;
-	float crushed_factor = (1.0 - sample_crushed_factor_cpu(world_position));
+	float crushed_factor = sample_crushed_factor(world_position);
 	float t = VERTEX.x;
 	// Create several rand nums that can be used for independent randomization
 	instance_rand_num_1 = hash13(world_position.xyz);
@@ -202,7 +195,7 @@ void vertex() {
 	// Define initial control points that will be used to curve the plane through a Bezier curve
 	vec2 p0 = p0_base;
 	vec2 p1 = vec2(control_x, control_y);
-	vec2 p2 = p2_base;
+	vec2 p2 = mix(p2_base_realistic, p2_base_toon, float(grass_type));
 
 	// Pinch z axis so plane has the format of a blade
 	float middle_width = (1.0 + middle_width_randomness*remapped_rand_num_1) * avg_middle_width;
@@ -212,7 +205,7 @@ void vertex() {
 
 	// Wind: we create the impression of wind by changing the position
 	//       of the control points and pivoting the blade over time
-	float wind_strength = sample_wind_strength(world_position, remapped_rand_num_1);
+	float wind_strength = sample_wind_strength(world_position, remapped_rand_num_1) * crushed_factor;
 
 	// For the control point manipulation, there are two types of motion: swelling and fluttering.
 	// Primary wind motion: swell, ranging from [-grass_swell_amplitude, 0]
@@ -246,7 +239,7 @@ void vertex() {
 	NORMAL.xy = vec2(bezier_normal_vec.x, bezier_normal_vec.y);
 
 	// Tertiary wind motion: pivoting the blade to face the wind
-	mat2 grass_pivot = pivot_blade(wind_strength, t, inverse_model_matrix);
+	mat2 grass_pivot = pivot_blade(wind_strength, world_position, t, inverse_model_matrix);
 	VERTEX.xz  = grass_pivot * VERTEX.xz;
 	NORMAL.xz  = grass_pivot * NORMAL.xz;
 	TANGENT.xz = grass_pivot * TANGENT.xz;
@@ -261,38 +254,29 @@ void vertex() {
 }
 
 
-// FIXME: axis used for mesh makes UV inverted... so currently we are doing vec.yx for a lot of stuff
 void fragment() {
-	// Add a normal component along the x axis, to give the impression of a central ridge and outer rims.
-	// First we need to calculate how "strong" this new component is going to be for every pixel
-	// Then we pertube the NORMAL vec, by adding a scaled TANGENT vec (which already points towards the u axis)
-	vec2 adjustment_coeffs = normal_adjustment_coeff(UV.yx).yx;
-	vec3 normal_adjustment_vec = TANGENT*adjustment_coeffs.x + BINORMAL*adjustment_coeffs.y;
-	NORMAL = normalize(NORMAL + normal_adjustment_vec);
-
 	// Color: we have 3 possible main colors, and we also add microtone differences for each blade
-	vec3 base_color, tip_color;
 	float prim_color_flag = step(prim_color_ratio, instance_rand_num_1);
 	float seco_color_flag = step((1.0-prim_color_ratio)*seco_color_ratio + prim_color_ratio, instance_rand_num_1);
-	base_color = mix(mix(prim_base_color, seco_base_color, prim_color_flag), tert_base_color, seco_color_flag);
-	tip_color = mix(mix(prim_tip_color, seco_tip_color, prim_color_flag), tert_tip_color, seco_color_flag);
+	vec3 base_color = mix(mix(prim_base_color, seco_base_color, prim_color_flag), tert_base_color, seco_color_flag);
+	vec3 tip_color = mix(mix(prim_tip_color, seco_tip_color, prim_color_flag), tert_tip_color, seco_color_flag);
 	base_color = clamp(base_color + instance_rand_num_2/20.0, vec3(0), vec3(1.0));
 	tip_color = clamp(tip_color + instance_rand_num_3/20.0, vec3(0), vec3(1.0));
-	//base_color = prim_base_color;
-	//tip_color = prim_tip_color;
-
-	// Texture is a one pixel tall greyscale noise, that gets stretched over the length of the blade
-    vec3 tex_color = texture(veins_texture, UV.yx).rgb;
-
 	// We change the color according to the texture
-	vec3 albedo_color = mix(base_color, tip_color, UV.x - 0.5);
-	//ALBEDO = debug_color;
-    ALBEDO = mix(albedo_color, (1.0-veins_strength)*albedo_color, tex_color);
+	ALBEDO = mix(base_color, tip_color, UV.x - 0.5);
 	
-    if (flat_color) {
-		EMISSION = ALBEDO * AMBIENT_LIGHT_COLOR * flat_color_emission_coeff;
-    }
-	else {
+	if (grass_type == 0) {
+		// Add a normal component along the x axis, to give the impression of a central ridge and outer rims.
+		// First we need to calculate how "strong" this new component is going to be for every pixel
+		// Then we pertube the NORMAL vec, by adding a scaled TANGENT vec (which already points towards the u axis)
+		vec2 adjustment_coeffs = normal_adjustment_coeff(UV.yx).yx;
+		vec3 normal_adjustment_vec = TANGENT*adjustment_coeffs.x + BINORMAL*adjustment_coeffs.y;
+		NORMAL = normalize(NORMAL + normal_adjustment_vec);
+
+		// Texture is a one pixel tall greyscale noise, that gets stretched over the length of the blade
+		vec3 tex_color = texture(veins_texture, UV.yx).rgb;
+		ALBEDO = mix(ALBEDO, (1.0-veins_strength)*ALBEDO, tex_color);
+
 		// Lighting
 		float gloss = clamp(gloss_amount*UV.x, 0.0, 1.0);
 		ROUGHNESS = mix(0.8, 0.05, gloss);
@@ -300,6 +284,10 @@ void fragment() {
 		CLEARCOAT = clearcoat_level * gloss;
 		CLEARCOAT_ROUGHNESS = clearcoat_roughness;
 		AO = mix(base_ao, 1.0, UV.x);
+	}
+	else {
+		// Lighting
+		EMISSION = ALBEDO * AMBIENT_LIGHT_COLOR * 1.0;
 	}
 }
 
