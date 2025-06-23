@@ -236,6 +236,56 @@ Again, this solution avoids drawing extra vertices, which would be computational
 ## 2.2. Instantiation
 
 ## 2.3. Terrain
+### Shape
+The visible part of the terrain is built upon a PlaneMesh with subdivisions of length 1 in both depth and width. The shape of the mesh is defined by a spatial shader. In the vertex function, each vertex's global position is mapped to a pixel in a heightmap PNG file. The magnitude of the pixel's red channel is then multiplied by an amplitude factor to set the vertex's Y component.
+
+```glsl
+void vertex(){
+	vec3 world_vertex = VERTEX + MODEL_MATRIX[3].xyz;
+	texture_position = (world_vertex.xz + 0.5) / float(textureSize(heightmap, 0).x);
+	VERTEX.y = texture(heightmap, texture_position).r * amplitude;
+}
+```
+
+Additionally, for lighting purposes, the fragment function uses a normal map PNG file associated with the heightmap. The shader samples the normal map using the same vertex position mapping calculated in the vertex function.
+
+```glsl
+void fragment() {
+	NORMAL_MAP = texture(normalmap, texture_position).rgb;
+	ALBEDO = vec3(20.0 / 255.0, 13.0 / 255.0, 7.0 / 255.0);
+}
+```
+
+### Collision
+The implementation of the terrain's collision component is very similar to the shape component, as both use the heightmap. However, in this case, an auxiliary class called Heightmap handles heightmap sampling, using bilinear interpolation to address non-integer positions.
+
+```gd
+func _get_height(x: int, z: int) -> float:
+	return image.get_pixel(fposmod(x, image_size), fposmod(z, image_size)).r * amplitude + 0.5
+```
+The collision mesh itself is a ConcavePolygonShape that follows the player. Its geometry is defined at runtime by sampling the heightmap and updating the Y component of each face.
+
+```gd
+func _physics_process(delta: float) -> void:
+	var player_rounded_pos = player.global_position.snapped(snap) * Vector3(1, 0, 1)
+	if not global_position == player_rounded_pos:
+		global_position = player_rounded_pos
+		update_shape()
+
+func update_shape():
+	for i in faces.size():
+		var global_vert = faces[i] + global_position
+		faces[i].y = Heightmap.get_height(global_vert.x, global_vert.z)
+	shape.set_faces(faces)
+```
+
+It is important to note that the ConcavePolygonShape's geometry is modified using an auxiliary 8×8 PlaneMesh, allowing for better performance by avoiding the generation of a collision shape for the entire terrain.
+
+### Infinite Terrain Grid
+To create the illusion of an infinite terrain, both the visual mesh and the collision shape are configured to follow the player's position. The terrain mesh is also made large enough so that the user does not perceive its boundaries. Both components are updated at runtime.
+
+This approach was adopted to improve the application's performance by avoiding the rendering and collision processing of parts of the world that are not currently in use.
+
 
 ## 2.4. Environmental extras
 
