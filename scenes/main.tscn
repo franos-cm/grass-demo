@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://b6ipamyyvedlc"]
+[gd_scene load_steps=40 format=3 uid="uid://b6ipamyyvedlc"]
 
 [ext_resource type="Script" uid="uid://bspet6c8rm8fj" path="res://assets/scripts/main.gd" id="1_0ld40"]
 [ext_resource type="PackedScene" uid="uid://dl71pfpibsvu6" path="res://scenes/terrain_collision_shape.tscn" id="2_0ld40"]
@@ -197,7 +197,7 @@ player = NodePath("../../Player")
 player = NodePath("../../Player")
 
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 2.4, -1.09638, 0, 3.9327)
+transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 2.4, -1.09638, 20.9509, 3.9327)
 script = ExtResource("3_an6go")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
