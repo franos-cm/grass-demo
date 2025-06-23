@@ -14,5 +14,5 @@ void vertex(){
 
 void fragment() {
 	NORMAL_MAP = texture(normalmap, texture_position).rgb;
-	ALBEDO = vec3(.5,.25,.10);
+	ALBEDO = vec3(20.0 / 255.0, 13.0 / 255.0, 7.0 / 255.0);
 }

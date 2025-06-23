@@ -1,4 +1,4 @@
-@tool
+#@tool
 extends GeometryInstance3D
 
 var player: CharacterBody3D
@@ -84,8 +84,9 @@ func maybe_fill_chunk(chunk: Chunk, player_position: Vector3):
 		for j in range(0, count_side):
 			var x = i*density + chunk_size*chunk.index.x + randf_range(-density, density)
 			var z = j*density + chunk_size*chunk.index.y + randf_range(-density, density)
+			var y = Heightmap.get_height(x, z)
 			var rotation = Basis().rotated(Vector3.UP, randf() * TAU)
-			var t = Transform3D(rotation, Vector3(x, 0, z))
+			var t = Transform3D(rotation, Vector3(x, y, z))
 			chunk.mmi.multimesh.set_instance_transform(i*count_side+j, t)
 	
 	chunk.density = density
