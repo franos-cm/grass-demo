@@ -14,6 +14,8 @@ group_uniforms;
 
 // Lighting/aesthetical params
 group_uniforms Lighting;
+uniform bool flat_color = false;
+uniform float flat_color_emission_coeff: hint_range(0.0, 2.0) = 1.5;
 uniform vec3 prim_base_color: source_color = vec3(0.46, 0.53, 0.2);
 uniform vec3 prim_tip_color: source_color = vec3(0.76, 0.87, 0.33);
 uniform vec3 seco_base_color: source_color = vec3(0.55, 0.50, 0.19);
@@ -56,6 +58,7 @@ group_uniforms Interaction;
 global uniform sampler2D footpath_tex: repeat_disable;
 global uniform vec2      footpath_origin;
 global uniform float     footpath_size;
+global uniform vec3      AMBIENT_LIGHT_COLOR;
 group_uniforms;
 
 // Varyings
@@ -67,7 +70,7 @@ varying vec3 debug_color;
 
 // Constants
 const vec2 p0_base = vec2(0.0, 0.0);
-const vec2 p2_base = vec2(1.2, 0.75);
+const vec2 p2_base = vec2(0.7, 1.25);
 
 
 float hash13(vec3 x) {
@@ -273,8 +276,8 @@ void fragment() {
 	float seco_color_flag = step((1.0-prim_color_ratio)*seco_color_ratio + prim_color_ratio, instance_rand_num_1);
 	base_color = mix(mix(prim_base_color, seco_base_color, prim_color_flag), tert_base_color, seco_color_flag);
 	tip_color = mix(mix(prim_tip_color, seco_tip_color, prim_color_flag), tert_tip_color, seco_color_flag);
-	base_color += instance_rand_num_2/20.0;
-	tip_color += instance_rand_num_3/20.0;
+	base_color = clamp(base_color + instance_rand_num_2/20.0, vec3(0), vec3(1.0));
+	tip_color = clamp(tip_color + instance_rand_num_3/20.0, vec3(0), vec3(1.0));
 	//base_color = prim_base_color;
 	//tip_color = prim_tip_color;
 
@@ -283,14 +286,20 @@ void fragment() {
 
 	// We change the color according to the texture
 	vec3 albedo_color = mix(base_color, tip_color, UV.x - 0.5);
-	ALBEDO = mix(albedo_color, (1.0-veins_strength)*albedo_color, tex_color);
 	//ALBEDO = debug_color;
-
-    // Lightning
-	float gloss = clamp(gloss_amount*UV.x, 0.0, 1.0);
-    ROUGHNESS = mix(0.8, 0.05, gloss);
-    SPECULAR = mix(0.05, 0.25, gloss);
-    CLEARCOAT = clearcoat_level * gloss;
-    CLEARCOAT_ROUGHNESS = clearcoat_roughness;
-	AO = mix(base_ao, 1.0, UV.x);
+    ALBEDO = mix(albedo_color, (1.0-veins_strength)*albedo_color, tex_color);
+	
+    if (flat_color) {
+		EMISSION = ALBEDO * AMBIENT_LIGHT_COLOR * flat_color_emission_coeff;
+    }
+	else {
+		// Lighting
+		float gloss = clamp(gloss_amount*UV.x, 0.0, 1.0);
+		ROUGHNESS = mix(0.8, 0.05, gloss);
+		SPECULAR = mix(0.05, 0.25, gloss);
+		CLEARCOAT = clearcoat_level * gloss;
+		CLEARCOAT_ROUGHNESS = clearcoat_roughness;
+		AO = mix(base_ao, 1.0, UV.x);
+	}
 }
+

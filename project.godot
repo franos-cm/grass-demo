@@ -83,3 +83,7 @@ POS_ARRAY_LENGTH={
 "type": "int",
 "value": 0
 }
+AMBIENT_LIGHT_COLOR={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}

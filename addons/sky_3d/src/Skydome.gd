@@ -1601,6 +1601,7 @@ func _update_environment() -> void:
 	col.a = 1.
 	col.v = clamp(col.v, .35, 1.)
 	environment.ambient_light_color = col
+	RenderingServer.global_shader_parameter_set("AMBIENT_LIGHT_COLOR", col)
 
 
 #####################
