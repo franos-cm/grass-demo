@@ -318,3 +318,4 @@ The same buffer+texture approach described before for player interaction could b
 - [Infinite Grass - Devlog](https://www.youtube.com/watch?v=cesPK0kYkyE)
 - [Interactive Grass in Godot](https://notcoding.today/blog/godot-interactive-grass)
 - [GodotGrass](https://github.com/2Retr0/GodotGrass)
+- [Infinite Terrain](https://www.youtube.com/watch?v=Hgv9iAdazKg&t=11s&ab_channel=DitzyNinja%27sGodojo)
