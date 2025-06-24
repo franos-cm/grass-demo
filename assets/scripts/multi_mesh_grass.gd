@@ -3,9 +3,9 @@ extends GeometryInstance3D
 
 var player: CharacterBody3D
 @export var high_density: float = 0.2
-@export var high_quality: int = 8
-@export var chunks_number: int = 1
-@export var chunk_size: float = 50
+@export var high_quality: int = 4
+@export var chunks_number: int = 4
+@export var chunk_size: float = 100
 
 class Chunk:
 	var index: Vector2i
@@ -59,15 +59,15 @@ func maybe_fill_chunk(chunk: Chunk, player_position: Vector3):
 	
 	var quality: int = high_quality;
 	var density: float = high_density;
-	if distance < chunk_size:
-		quality /= 1
-		density /= 1
-	elif distance < chunk_size*4:
-		quality /= 2
-		density /= 2
-	else:
-		quality /= 4
-		density /= 4
+	#if distance < chunk_size:
+		#quality /= 1
+		#density *= 1
+	#elif distance < chunk_size*4:
+		#quality /= 2
+		#density *= 1
+	#else:
+		#quality /= 4
+		#density *= 1
 	
 	if chunk.density == density and chunk.quality == quality:
 		# same, no need to change
