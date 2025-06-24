@@ -54,20 +54,20 @@ func instance_chunk(index: Vector2i) -> Chunk:
 	return Chunk.new_with(index, mmi, mesh, -1, -1)
 	
 func maybe_fill_chunk(chunk: Chunk, player_position: Vector3):
-	var chunk_center: Vector2 = Vector2(chunk.index) + Vector2(chunk_size/2, chunk_size/2)
+	var chunk_center: Vector2 = Vector2(chunk.index*chunk_size) + Vector2(chunk_size/2, chunk_size/2)
 	var distance: float = player_position.distance_to(Vector3(chunk_center.x, 0, chunk_center.x))
 	
 	var quality: int = high_quality;
 	var density: float = high_density;
-	if distance < chunk_size:
-		quality /= 1
-		density /= 1
-	elif distance < chunk_size*4:
-		quality /= 2
-		density /= 2
+	if distance < 4*chunk_size:
+		quality = 6
+		density = 0.2
+	elif distance < chunk_size*6:
+		quality = 4
+		density = 0.5
 	else:
-		quality /= 4
-		density /= 4
+		quality = 2
+		density = 1
 	
 	if chunk.density == density and chunk.quality == quality:
 		# same, no need to change
@@ -94,6 +94,7 @@ func maybe_fill_chunk(chunk: Chunk, player_position: Vector3):
 	
 
 func _process(_delta: float) -> void:
+	print(player.global_position)
 	for chunk in chunks:
 		maybe_fill_chunk(chunk, player.global_position)
 	#print("fps: ", Engine.get_frames_per_second())
