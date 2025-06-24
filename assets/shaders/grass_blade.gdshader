@@ -150,7 +150,7 @@ mat2 pivot_blade(float wind_strength, vec3 world_pos, float t, mat4 inverse_mode
 
 	const vec2 base_blade_direction = vec2(1.0, 0.0);
 	vec2 wind_blade_direction = mix(base_blade_direction, wind_direction, pivot_strength);
-	
+
 	vec2 final_blade_direction;
 	if (grass_type == 1) {
 		vec3 player_direction_world = PLAYER_POSITION - world_position;
@@ -264,7 +264,7 @@ void fragment() {
 	tip_color = clamp(tip_color + instance_rand_num_3/20.0, vec3(0), vec3(1.0));
 	// We change the color according to the texture
 	ALBEDO = mix(base_color, tip_color, UV.x - 0.5);
-	
+
 	if (grass_type == 0) {
 		// Add a normal component along the x axis, to give the impression of a central ridge and outer rims.
 		// First we need to calculate how "strong" this new component is going to be for every pixel
