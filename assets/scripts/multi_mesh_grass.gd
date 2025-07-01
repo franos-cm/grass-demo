@@ -4,7 +4,7 @@ extends GeometryInstance3D
 var player: CharacterBody3D
 @export var high_density: float = 0.2
 @export var high_quality: int = 4
-@export var chunks_number: int = 7
+@export var chunks_number: int = 6
 @export var chunk_size: float = 40
 
 class Chunk:
