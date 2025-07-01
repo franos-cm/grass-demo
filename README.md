@@ -287,6 +287,21 @@ To create the illusion of an infinite terrain, both the visual mesh and the coll
 This approach was adopted to improve the application's performance by avoiding the rendering and collision processing of parts of the world that are not currently in use.
 
 
+### Optimization
+Given the high number of grass blade in the scene we need to execute thing about optimization since the begining, avoinding extra points and doing most of the effects in the shaders.
+
+For positioning the grass we use MultiMeshInstance3D with two optimization: Level of Detail (LoD) and chunking
+
+#### Chunks
+
+The MultiMeshInstance3D is only occluded if all instances are not present in the field of view. So we need to slipt the grass field in multiples part,
+to some of this parts are not rendered. The size was defining testing the performance against diferent configurations.
+We also don't need to render grass to far away from the player, so we can only render X chunks away from the player.
+
+#### LoD
+The grass far away from the player don't need to be as detailed as the grass next to de camera,
+so we reduce the number of grass that is drawed 2 chunks away the player and we reduce the number of vertices from the grass.
+
 ## 2.4. Environmental extras
 
 In order to have a more immersive environment, some additional features were included in the project. Specifically, a dynamic day-night cycle was added onto the game, by using the [Sky3D open-source Godot add-on](https://github.com/TokisanGames/Sky3D). This provides more diverse lighting conditions in which our grass can be analyzed.
