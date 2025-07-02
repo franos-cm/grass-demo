@@ -290,4 +290,3 @@ void fragment() {
 		EMISSION = ALBEDO * AMBIENT_LIGHT_COLOR * 1.0;
 	}
 }
-

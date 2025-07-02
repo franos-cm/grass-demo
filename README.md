@@ -1,30 +1,39 @@
 # Overview
 
-This project was developed as part of the **PCS3539 - Tecnologia de Computação Gráfica** course, during the 2025.1 semester. 
+This project was developed as part of the **PCS3539 - Tecnologia de Computação Gráfica** course, during the 2025.1 semester. The video for the project, showing a quick demo, is available [here](https://www.youtube.com/watch?v=fxNNn6FIYPg). 
+
+<table>
+  <tr>
+    <td><img src="docs/images/demo1.png" style="width:100%"></td>
+    <td><img src="docs/images/demo2.png" style="width:100%"></td>
+  </tr>
+</table>
 
 The goal of the project was to render realistic grass fields for real-time computer graphics applications, primarily targeting video games.
 The project was entirely developed using the Godot game engine, and it was heavily inspired by [this talk given by the developers of Ghost of Tsushima in 2021](https://www.youtube.com/watch?v=Ibe1JBF5i5Y), as well as by other projects exploring similar ideas.
 
-# 1. Running the demo
+# 1. Running the project
 
-The demo is available as a static website [here](https://franos-cm.github.io/whitman/). We recommend using a computer, since controls require a keyboard.
+Although an older (and outdated) version of the project is available as a static website [here](https://franos-cm.github.io/whitman/), we recommend cloning the repository and running the project directly on Godot, as it will include all the latest features.
 
-Alternatively, one could simply [download Godot](https://godotengine.org/), clone the repository:
+For the most up-to-date version, one can simply [download Godot](https://godotengine.org/), clone the repository:
 ```cmd
-git clone https://github.com/guissalustiano/grass-demo.git
+git clone https://github.com/franos-cm/grass-demo.git
 ```
 
 and open it as a Godot project. **Note that the project was developed and tested using Godot 4.4.1.**
 
 ### Controls
 
-Because the project focuses on grass rendering itself, player controls are kept very simple and provide minimal interaction:
+We recommend using a computer, since controls require a keyboard.
+Because the project focuses on grass rendering itself, player controls are kept very simple and provide minimal interaction. For the best experience, we recommend using a computer, as the controls require a keyboard.
 
 | Key / Input     | Action                   |
 |-----------------|--------------------------|
 | `W` `A` `S` `D` | Move character           |
 | `Spacebar`      | Jump                     |
 | `Mouse`         | Rotate the camera        |
+| `Tab`           | Change grass parameters  |
 
 
 
